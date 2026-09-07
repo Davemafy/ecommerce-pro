@@ -1,0 +1,15 @@
+export const endpoints = {
+  dashboard: '/dashboard/overview',
+  orders: '/orders',
+  order: (id) => `/orders/${id}`,
+  products: '/products',
+  product: (id) => `/products/${id}`,
+  customers: '/customers',
+  customer: (id) => `/customers/${id}`,
+  inventory: '/inventory',
+  inventoryItem: (id) => `/inventory/${id}`,
+  reports: '/reports/overview',
+  settings: '/settings',
+  login: '/auth/login',
+  me: '/auth/me',
+};
