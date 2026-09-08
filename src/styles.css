@@ -779,3 +779,30 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, #root::-webkit-scrollbar, *::-
   height: 0;
   display: none;
 }
+
+/* v14.2 — pin the global header while dashboard content scrolls. */
+html, body, #root {
+  height: 100%;
+}
+
+.app-shell {
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.content {
+  height: 100vh;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+}
+
+.topbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  flex: 0 0 64px;
+  background: #fff !important;
+}
