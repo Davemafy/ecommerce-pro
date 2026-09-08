@@ -10,9 +10,10 @@ import {
   Users,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
-import adminPfp from '../../assets/figma-shell/admin-pfp.png';
+import type { LucideIcon } from 'lucide-react';
+import adminPfp from '../../assets/admin-pfp.png';
 
-const items = [
+const items: Array<[string, string, LucideIcon]> = [
   ['/', 'Dashboard', LayoutDashboard],
   ['/orders', 'Orders', ShoppingCart],
   ['/products', 'Products', Package],

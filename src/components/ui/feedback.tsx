@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from 'react';
+import type React from 'react';
 import { AlertCircle, CheckCircle2, X } from 'lucide-react';
 
 const ToastContext = createContext(null);
@@ -42,7 +43,7 @@ export function useToast() {
   return context;
 }
 
-export function Modal({ open, title, description, children, onClose, footer }) {
+export function Modal({ open, title, description, children, onClose, footer }: { open: boolean; title: string; description?: string; children: React.ReactNode; onClose: () => void; footer?: React.ReactNode }) {
   if (!open) return null;
   return (
     <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>

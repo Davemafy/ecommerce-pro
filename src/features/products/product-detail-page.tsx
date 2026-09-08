@@ -10,7 +10,7 @@ export function ProductDetailPage() {
   const {data,updateProduct,archiveProduct}=useStore();
   const product=data.products.find((p)=>p.id===decodeURIComponent(productId));
   const [editing,setEditing]=useState(false),[archiving,setArchiving]=useState(false),[actionsOpen,setActionsOpen]=useState(false);
-  const [form,setForm]=useState({}); const toast=useToast();
+  const [form,setForm]=useState<{name?:string;price?:number;stock?:number;category?:string}>({}); const toast=useToast();
   useEffect(()=>{ if(product) setForm({name:product.name,price:product.price,stock:product.stock,category:product.category}); },[product]);
   if(!product) return <main><button className="back" onClick={()=>navigate('/products')}><ArrowLeft/>Products</button><section className="card empty"><h1>Product not found</h1><p>This product may have been removed or the link is no longer valid.</p></section></main>;
   const save=()=>{ updateProduct(product.id,{...form,price:Number(form.price),stock:Number(form.stock)}); setEditing(false); toast('Product changes saved'); };

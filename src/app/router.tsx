@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { App } from './App';
+import { App } from './app';
 import { DashboardPage } from '../features/dashboard/dashboard-page';
 import { OrdersPage } from '../features/orders/orders-page';
 import { OrderDetailPage } from '../features/orders/order-detail-page';
