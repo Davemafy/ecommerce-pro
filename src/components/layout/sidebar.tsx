@@ -23,9 +23,9 @@ const items: Array<[string, string, LucideIcon]> = [
   ['/settings', 'Settings', Settings],
 ];
 
-export function Sidebar() {
+export function Sidebar({ mobileOpen = false, onNavigate }: { mobileOpen?: boolean; onNavigate?: () => void }) {
   return (
-    <aside className="figma-sidebar">
+    <aside className={`figma-sidebar${mobileOpen ? ' mobile-open' : ''}`}>
       <div className="figma-sidebar-top">
         <div className="figma-brand">
           <span className="figma-brand-icon"><Store /></span>
@@ -41,6 +41,7 @@ export function Sidebar() {
               key={to}
               to={to}
               end={to === '/'}
+              onClick={onNavigate}
               className={({ isActive }) => isActive ? 'is-active' : ''}
             >
               <Icon aria-hidden="true" />
@@ -51,7 +52,7 @@ export function Sidebar() {
       </div>
 
       <div className="figma-sidebar-profile">
-        <NavLink to="/settings/profile" className="figma-profile-link">
+        <NavLink to="/settings/profile" onClick={onNavigate} className="figma-profile-link">
           <img className="figma-profile-image" src={adminPfp} alt="" />
           <span>Admin User</span>
           <ExternalLink className="figma-external-icon" aria-hidden="true" />

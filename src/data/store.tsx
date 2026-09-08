@@ -1,9 +1,10 @@
+import type { ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { commerceService } from '../services/commerce-service';
 
 const DATA_KEY = ['commerce-data'] as const;
 
-export function StoreProvider({ children }: { children: React.ReactNode }) {
+export function StoreProvider({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
