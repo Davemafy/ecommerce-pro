@@ -1,0 +1,105 @@
+/* Final mobile corrections kept separate from the legacy fidelity sheet. */
+@media (max-width: 720px) {
+  html, body, #root { min-height: 100%; }
+
+  .content {
+    min-height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .figma-page,
+  main.figma-page {
+    padding: 28px 20px max(80px, calc(56px + env(safe-area-inset-bottom))) !important;
+  }
+
+  .figma-page-heading {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end !important;
+    gap: 16px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .figma-page-heading h1 {
+    font-size: 28px !important;
+    line-height: 34px !important;
+    letter-spacing: -.4px;
+  }
+
+  .figma-page-heading p {
+    margin-top: 8px !important;
+    font-size: 15px !important;
+    line-height: 22px !important;
+  }
+
+  .figma-page-heading > .primary {
+    align-self: end;
+    min-height: 44px;
+    padding: 0 16px;
+    white-space: nowrap;
+  }
+
+  .figma-toolbar {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+    padding: 20px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .figma-search {
+    width: 100% !important;
+    height: 46px !important;
+  }
+
+  .figma-filters {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .figma-filters select {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+  }
+
+  .figma-filters .filter-button {
+    grid-column: 1 / -1;
+    width: 44px;
+    height: 44px;
+  }
+
+  .figma-table-card {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    margin-bottom: 8px;
+  }
+
+  .figma-table {
+    min-width: 760px !important;
+  }
+
+  .table-footer {
+    min-width: 760px;
+    min-height: 64px;
+  }
+}
+
+@media (max-width: 430px) {
+  .figma-page,
+  main.figma-page {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .figma-page-heading {
+    grid-template-columns: minmax(0, 1fr) 112px !important;
+  }
+
+  .figma-page-heading > .primary {
+    width: 112px;
+    white-space: normal;
+    line-height: 20px;
+  }
+}
