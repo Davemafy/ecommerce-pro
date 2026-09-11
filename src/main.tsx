@@ -8,6 +8,7 @@ import { ToastProvider } from './components/ui/feedback';
 import { router } from './app/router';
 import { StoreProvider } from './data/store';
 import './styles.css';
+import './mobile-fixes.css';
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: 1 } } });
 
