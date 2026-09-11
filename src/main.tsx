@@ -9,6 +9,7 @@ import { router } from './app/router';
 import { StoreProvider } from './data/store';
 import './styles.css';
 import './mobile-fixes.css';
+import './mobile-product-controls.css';
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: 1 } } });
 
