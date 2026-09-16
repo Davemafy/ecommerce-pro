@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useId, useRef, useState } from 'react';
 import type React from 'react';
+import { createPortal } from 'react-dom';
 import { AlertCircle, CheckCircle2, X } from 'lucide-react';
 import './feedback.css';
 
@@ -70,7 +71,8 @@ export function Modal({ open, title, description, children, onClose, footer }: {
   }, [open, onClose]);
 
   if (!open) return null;
-  return (
+
+  return createPortal(
     <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <section ref={dialogRef} className="modal" role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={description ? descriptionId : undefined} tabIndex={-1}>
         <header className="modal-header">
@@ -83,7 +85,8 @@ export function Modal({ open, title, description, children, onClose, footer }: {
         <div className="modal-body">{children}</div>
         {footer && <footer className="modal-footer">{footer}</footer>}
       </section>
-    </div>
+    </div>,
+    document.body
   );
 }
 
