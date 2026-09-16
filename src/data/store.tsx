@@ -41,7 +41,13 @@ export function useStore() {
     updateOrderStatus(id: string, status: 'Pending' | 'Processing' | 'Completed') { commit((d: any) => ({ ...d, orders: d.orders.map((order: any) => order.id === id ? { ...order, status } : order) })); },
     adjustInventory(sku: string, amount: number) { commit((d: any) => ({ ...d, products: d.products.map((p: any) => p.sku === sku ? { ...p, stock: Math.max(0, p.stock + Number(amount)) } : p) })); },
     updateSettings(section: string, patch: any) { commit((d: any) => ({ ...d, settings: { ...d.settings, [section]: { ...d.settings[section], ...patch } } })); },
-    resetDemoData() { queryClient.setQueryData(DATA_KEY, commerceService.referenceData); },
+    async resetDemoData() {
+      const next = await commerceService.reset();
+      queryClient.setQueryData(DATA_KEY, next);
+    },
     isLoading: query.isLoading,
+    error: query.error,
+    reload: query.refetch,
+    isSaving: mutate.isPending,
   };
 }
