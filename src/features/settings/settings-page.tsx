@@ -30,7 +30,7 @@ export function SettingsPage(){
   const rawSection=section||'general';
   const isValid=tabs.includes(rawSection as SettingsSection);
   const active=(isValid?rawSection:'general') as SettingsSection;
-  const [form,setForm]=useState(()=>({...data.settings[active]}));
+  const [form,setForm]=useState<any>(()=>({...data.settings[active]}));
   const [deleteOpen,setDeleteOpen]=useState(false);
   const [logoPreview,setLogoPreview]=useState<string|null>(null);
   const logoInputRef=useRef<HTMLInputElement>(null);
