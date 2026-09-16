@@ -13,6 +13,7 @@ import './mobile-product-controls.css';
 import './review-fixes.css';
 import './final-pass.css';
 import './cohesion-pass.css';
+import './production-hardening.css';
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: 1 } } });
 
