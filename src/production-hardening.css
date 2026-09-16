@@ -18,6 +18,28 @@ button:disabled {
 .avatar-menu-trigger:hover { background: #f2f4f6; }
 .avatar-menu-trigger .admin-avatar-image { display:block; }
 
+.figma-sidebar-profile {
+  display:flex !important;
+  align-items:center;
+  gap:6px;
+}
+.figma-profile-link { min-width:0; flex:1 1 auto; }
+.figma-sidebar-logout {
+  width:36px;
+  min-width:36px;
+  height:36px;
+  min-height:36px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  border:0;
+  border-radius:8px;
+  background:transparent;
+  color:#777587;
+}
+.figma-sidebar-logout:hover { background:#f2f4f6; color:#ba1a1a; }
+.figma-sidebar-logout svg { width:17px; height:17px; }
+
 .login-demo-note {
   display: grid;
   gap: 3px;
@@ -173,4 +195,6 @@ button:disabled {
   .app-state-card { min-height:92px; }
   .dashboard-chart-labels span:nth-child(even) { display:none; }
   .product-visual-lg { min-height:220px; }
+  .figma-sidebar-profile { padding-right:12px !important; }
+  .figma-sidebar-logout { flex:0 0 36px; }
 }
