@@ -15,7 +15,7 @@ export function DataTable({ columns, rows, onRowClick }) {
               {row.map((cell, cellIndex) => {
                 const column=columns[cellIndex];
                 const isStatus=column==='STATUS'&&typeof cell==='string';
-                return <td key={`${rowIndex}-${cellIndex}`} className={column==='ACTIONS'?'action-column':undefined}>{isStatus?<span className={`status-chip ${cell.toLowerCase().replaceAll(' ','-')}`}>{cell}</span>:cell}</td>;
+                return <td key={`${rowIndex}-${cellIndex}`} className={column==='ACTIONS'?'action-column':undefined}>{isStatus?<span className={`status-chip ${cell.toLowerCase().replace(/ /g,'-')}`}>{cell}</span>:cell}</td>;
               })}
             </tr>
           ))}
