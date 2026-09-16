@@ -12,6 +12,7 @@ export function OrdersPage(){
   const navigate=useNavigate(),{data,createOrder}=useStore(),toast=useToast();
   const [query,setQuery]=useState(''),[creating,setCreating]=useState(false),[form,setForm]=useState({email:'',sku:'',quantity:'1'}),[error,setError]=useState('');
   const filtered=useMemo(()=>data.orders.filter(o=>`${o.id} ${o.customer} ${o.status}`.toLowerCase().includes(query.toLowerCase())),[data.orders,query]);
+  const exportRows=filtered.map(order=>({orderId:order.id,customer:order.customer,date:order.date,total:order.total,status:order.status,sku:order.sku,quantity:order.quantity}));
   const rows=filtered.map((order)=>[
     `#${order.id}`,
     order.customer,
@@ -22,7 +23,7 @@ export function OrdersPage(){
     <button className="bare table-action-button" aria-label={`Open ${order.id}`} onClick={(event)=>{event.stopPropagation();navigate(`/orders/${order.id}`)}}><MoreVertical/></button>,
   ]);
   const save=()=>{try{createOrder(form);setCreating(false);setForm({email:'',sku:'',quantity:'1'});setError('');toast('Order created');}catch(e:any){setError(e.message)}};
-  return <main><PageHeader title="Orders" subtitle="Manage and track customer orders."><ExportButton/><button className="primary" onClick={()=>setCreating(true)}><Plus/>Create Order</button></PageHeader><div className="toolbar"><Search/><input value={query} onChange={(e)=>setQuery(e.target.value)} placeholder="Search orders"/></div>
+  return <main><PageHeader title="Orders" subtitle="Manage and track customer orders."><ExportButton data={exportRows} filename="commercepro-orders.csv"/><button className="primary" onClick={()=>setCreating(true)}><Plus/>Create Order</button></PageHeader><div className="toolbar"><Search/><input value={query} onChange={(e)=>setQuery(e.target.value)} placeholder="Search orders"/></div>
     <DataTable columns={['ORDER','CUSTOMER','DATE','TOTAL','PAYMENT','FULFILLMENT','ACTIONS']} rows={rows} onRowClick={(row)=>navigate(`/orders/${String(row[0]).replace('#','')}`)}/>
     <Modal open={creating} title="Create order" description="Create an order for an existing customer." onClose={()=>setCreating(false)} footer={<><button onClick={()=>setCreating(false)}>Cancel</button><button className="primary" onClick={save}>Create order</button></>}><FormFields values={form} onChange={(n,v)=>setForm(x=>({...x,[n]:v}))} fields={[{name:'email',label:'Customer email',type:'email'},{name:'sku',label:'Product SKU'},{name:'quantity',label:'Quantity',type:'number'}]}/>{error&&<p className="form-error">{error}</p>}</Modal>
   </main>;
