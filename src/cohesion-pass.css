@@ -1,0 +1,267 @@
+/* Cohesion pass: finish screens that previously felt secondary or incomplete. */
+
+/* Settings — follow Figma 5:1418 and neutralize legacy .danger-zone rules. */
+.settings-figma {
+  width: 100%;
+  max-width: 1024px !important;
+  padding: 32px !important;
+  background: #f7f9fb;
+}
+.settings-figma .tabs {
+  display: flex;
+  gap: 32px;
+  margin: 0 0 32px;
+  overflow-x: auto;
+  border-bottom: 1px solid #c7c4d8;
+}
+.settings-figma .tabs button {
+  flex: 0 0 auto;
+  min-height: 0;
+  padding: 0 4px 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: #464555;
+  font-size: 14px;
+  font-weight: 500;
+}
+.settings-figma .tabs button.active {
+  color: #3525cd;
+  font-weight: 700;
+  border-bottom-color: #3525cd;
+}
+.settings-general-grid {
+  display: grid;
+  grid-template-columns: minmax(0,2fr) minmax(240px,1fr) !important;
+  gap: 32px !important;
+  max-width: none !important;
+  align-items: start;
+}
+.settings-main { display: grid; gap: 24px !important; }
+.settings-section {
+  padding: 24px !important;
+  border: 1px solid #c7c4d8;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 6px -1px rgba(15,23,42,.04);
+}
+.settings-section h2 {
+  margin: 0 0 20px !important;
+  color: #191c1e;
+  font-size: 20px !important;
+  line-height: 28px;
+  font-weight: 600;
+}
+.settings-section label,
+.settings-field-stack label {
+  display: grid;
+  gap: 8px;
+  color: #191c1e;
+  font-size: 14px;
+  font-weight: 500;
+}
+.settings-section > label + label { margin-top: 20px; }
+.settings-section input,
+.settings-section select,
+.settings-panel input,
+.settings-panel select {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #c7c4d8;
+  border-radius: 8px;
+  background: #fff;
+  color: #191c1e;
+  font-size: 14px;
+}
+.logo-setting {
+  display: flex !important;
+  align-items: center;
+  gap: 20px !important;
+  margin-top: 8px;
+}
+.logo-placeholder {
+  width: 80px !important;
+  height: 80px !important;
+  flex: 0 0 80px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid #c7c4d8;
+  border-radius: 8px;
+  background: #eceef0 !important;
+  color: #667085;
+}
+.logo-placeholder svg { width: 24px; height: 24px; }
+.logo-placeholder.has-preview img { width: 100%; height: 100%; object-fit: cover; }
+.logo-actions { display: flex; align-items: center; gap: 12px; }
+.logo-actions button { min-height: 36px; padding: 0 16px; font-size: 12px; font-weight: 600; }
+.logo-actions .danger-link { border: 0; background: transparent; color: #ba1a1a; }
+.logo-setting p { margin: 8px 0 0 !important; color: #464555; font-size: 13px !important; }
+.regional-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px !important; }
+.settings-actions { display: flex; justify-content: flex-end; gap: 12px; }
+.settings-actions button { min-height: 44px; padding: 0 24px; }
+.settings-help {
+  padding: 24px !important;
+  border: 1px solid #c7c4d8;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15,23,42,.04);
+}
+.settings-help h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  color: #3525cd !important;
+  font-size: 14px !important;
+  line-height: 20px;
+}
+.settings-help h3 svg { width: 18px; height: 18px; }
+.settings-help p { margin: 0; color: #464555; font-size: 14px; line-height: 20px; }
+.settings-help small { display: block; margin-top: 16px; color: #777587; font-size: 12px; line-height: 18px; }
+.settings-danger-zone {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding-top: 32px;
+  display: grid;
+  gap: 16px;
+}
+.settings-danger-zone h2 {
+  margin: 0;
+  color: #ba1a1a;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+.settings-danger-card {
+  width: 100%;
+  min-height: 76px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border: 1px solid #ba1a1a;
+  border-radius: 12px;
+  background: rgba(255,218,214,.2);
+}
+.settings-danger-card > div { display: grid; gap: 4px; min-width: 0; }
+.settings-danger-card b { color: #191c1e; font-size: 14px; line-height: 20px; }
+.settings-danger-card p { margin: 0; color: #464555; font-size: 14px; line-height: 20px; }
+.settings-danger-card .danger-button {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 24px;
+  border-color: #ba1a1a;
+  background: #ba1a1a;
+  color: #fff;
+  white-space: nowrap;
+}
+.settings-panel {
+  width: min(760px,100%);
+  padding: 0 !important;
+  overflow: hidden;
+  border: 1px solid #c7c4d8;
+  border-radius: 12px;
+  background: #fff;
+}
+.settings-panel > header { padding: 24px; border-bottom: 1px solid #e0e3e5; }
+.settings-panel > header h2 { margin: 0; font-size: 20px; line-height: 28px; }
+.settings-panel > header p { margin: 6px 0 0; color: #667085; font-size: 13px; line-height: 20px; }
+.settings-panel-body { padding: 24px; }
+.settings-field-stack { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.settings-panel > footer { display: flex; justify-content: flex-end; gap: 12px; padding: 18px 24px; border-top: 1px solid #e0e3e5; background: #fafbfc; }
+.settings-panel > footer button { min-height: 40px; padding: 0 18px; }
+.settings-toggle-list { display: grid; }
+.settings-toggle-list .toggle-row {
+  width: 100%;
+  max-width: none !important;
+  min-height: 72px;
+  margin: 0;
+  padding: 14px 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid #eceef0;
+}
+.settings-toggle-list .toggle-row:last-child { border-bottom: 0; }
+.settings-toggle-list .toggle-row > span { display: grid; gap: 3px; }
+.settings-toggle-list .toggle-row b { color: #191c1e; font-size: 14px; font-weight: 600; }
+.settings-toggle-list .toggle-row small { color: #667085; font-size: 12px; line-height: 18px; font-weight: 400; }
+.settings-toggle-list .toggle-row input { width: 18px; height: 18px; flex: 0 0 18px; }
+
+/* Inventory — no dead-looking filters, pagination, or rows. */
+.inventory-controls {
+  min-height: 64px;
+  margin-bottom: 18px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px solid #c7c4d8;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15,23,42,.04);
+}
+.inventory-controls .figma-search { width: min(420px,100%); }
+.inventory-controls > span { color: #667085; font-size: 12px; }
+.inventory-filter-active { color: #3525cd !important; border-color: rgba(53,37,205,.35) !important; background: rgba(53,37,205,.06) !important; }
+.pagination-summary { display: inline-flex; align-items: center; padding: 0 8px; color: #667085; font-size: 12px; white-space: nowrap; }
+.table-empty-state { min-height: 120px; display: grid; place-items: center; align-content: center; gap: 6px; text-align: center; color: #667085; }
+.table-empty-state strong { color: #344054; font-size: 14px; }
+.table-empty-state span { font-size: 12px; }
+
+/* Reports — make secondary controls and empty states deliberate. */
+.section-title > div { display: grid; gap: 2px; }
+.section-kicker { color: #777587; font-size: 12px; line-height: 16px; }
+.report-empty-state { min-height: 240px; display: grid; place-items: center; padding: 24px; text-align: center; color: #667085; font-size: 13px; }
+.categories-card .category-icon { font-weight: 700; color: #3525cd; }
+
+/* Customer detail — replace fake profile data with clean real states. */
+.customer-avatar-initials {
+  display: grid !important;
+  place-items: center;
+  background: linear-gradient(135deg,#3525cd,#6d5df2) !important;
+  color: #fff;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.5px;
+}
+.order-history tbody tr { cursor: pointer; }
+.order-history tbody tr:hover { background: #fafaff; }
+.customer-empty-card { min-height: 112px; align-content: center; }
+.customer-empty-card p { margin: 2px 0 0 !important; }
+.notes-list { display: grid; gap: 10px; }
+.notes-box p { margin: 5px 0 0; color: #464555; line-height: 18px; }
+.notes-empty { color: #777587; font-weight: 500; }
+.note-composer { position: relative; display: block !important; margin-top: 12px; }
+.note-composer textarea { padding-right: 46px !important; }
+.note-composer button { position: absolute; right: 8px; bottom: 8px; width: 34px; height: 34px; min-height: 34px; padding: 0; display: grid; place-items: center; color: #3525cd; }
+.note-composer button svg { width: 17px; height: 17px; }
+
+@media (max-width: 900px) {
+  .settings-figma { max-width: none !important; }
+  .settings-general-grid { grid-template-columns: 1fr !important; }
+  .settings-help { order: -1; }
+  .settings-field-stack { grid-template-columns: 1fr; }
+  .inventory-controls { align-items: stretch; flex-direction: column; }
+  .inventory-controls .figma-search { width: 100%; }
+}
+
+@media (max-width: 720px) {
+  .settings-figma { padding: 24px 18px 48px !important; }
+  .settings-figma .tabs { gap: 22px; margin-bottom: 24px; }
+  .regional-grid { grid-template-columns: 1fr !important; }
+  .logo-setting { align-items: flex-start; }
+  .settings-actions { width: 100%; }
+  .settings-actions button { flex: 1; }
+  .settings-danger-card { align-items: flex-start; flex-direction: column; }
+  .settings-danger-card .danger-button { width: 100%; }
+  .settings-panel { width: 100%; }
+}
