@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Filter, Plus, Search } from 'lucide-react';
 import { Modal, useToast } from '../../components/ui/feedback';
 import { FormFields } from '../../components/ui/form-fields';
@@ -9,8 +9,9 @@ const empty = { name:'', sku:'', category:'', price:'', stock:'' };
 
 export function ProductsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { data, addProduct } = useStore();
-  const [query,setQuery]=useState('');
+  const [query,setQuery]=useState(()=>searchParams.get('search')||'');
   const [category,setCategory]=useState('All Categories');
   const [status,setStatus]=useState('All Status');
   const [creating,setCreating]=useState(false);
