@@ -1,4 +1,4 @@
-export function DataTable({ columns, rows, onRowClick }) {
+export function DataTable({ columns, rows, onRowClick, emptyTitle='No results found', emptyMessage='Try adjusting your search or filters.' }) {
   return (
     <div className="card table-card">
       <table>
@@ -19,6 +19,7 @@ export function DataTable({ columns, rows, onRowClick }) {
               })}
             </tr>
           ))}
+          {!rows.length&&<tr><td colSpan={columns.length}><div className="table-empty-state"><strong>{emptyTitle}</strong><span>{emptyMessage}</span></div></td></tr>}
         </tbody>
       </table>
     </div>
