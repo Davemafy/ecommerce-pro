@@ -29,15 +29,15 @@ export function SettingsPage(){
   const logoInputRef=useRef<HTMLInputElement>(null);
 
   useEffect(()=>{
-    const next={...data.settings[active]};
+    const next:any={...data.settings[active]};
     setForm(next);
-    if(active==='general') setLogoPreview(next.logoData||null);
+    if(active==='general') setLogoPreview(data.settings.general.logoData||null);
   },[active,data.settings]);
 
   if(!isValid) return <Navigate to="/settings/general" replace/>;
 
   const save=()=>{ updateSettings(active,form); toast(`${labels[active]} settings saved`); };
-  const reset=()=>{ const saved={...data.settings[active]}; setForm(saved); if(active==='general') setLogoPreview(saved.logoData||null); toast('Changes discarded'); };
+  const reset=()=>{ const saved:any={...data.settings[active]}; setForm(saved); if(active==='general') setLogoPreview(data.settings.general.logoData||null); toast('Changes discarded'); };
   const chooseLogo=(file?:File)=>{
     if(!file) return;
     if(!file.type.startsWith('image/')){toast('Choose an image file','error');return;}
