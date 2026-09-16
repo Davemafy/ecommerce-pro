@@ -73,8 +73,33 @@ export function Modal({ open, title, description, children, onClose, footer }: {
   if (!open) return null;
 
   return createPortal(
-    <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <section ref={dialogRef} className="modal" role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={description ? descriptionId : undefined} tabIndex={-1}>
+    <div
+      className="modal-backdrop"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 2147483647,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 24,
+        overflow: 'auto',
+        background: 'rgba(20, 24, 33, 0.52)',
+      }}
+      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+    >
+      <section
+        ref={dialogRef}
+        className="modal"
+        style={{ maxHeight: 'calc(100vh - 48px)', margin: 'auto' }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={description ? descriptionId : undefined}
+        tabIndex={-1}
+      >
         <header className="modal-header">
           <div>
             <h2 id={titleId}>{title}</h2>
