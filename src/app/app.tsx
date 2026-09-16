@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Menu } from 'lucide-react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/layout/sidebar';
 import { TopBar } from '../components/layout/top-bar';
@@ -13,7 +14,7 @@ export function App() {
       <Sidebar mobileOpen={mobileNavOpen} onNavigate={() => setMobileNavOpen(false)} />
       {mobileNavOpen && <button className="mobile-nav-backdrop" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)} />}
       <div className="content">
-        {!isDashboard&&<TopBar onMenu={() => setMobileNavOpen(true)} />}
+        {isDashboard?<button className="dashboard-mobile-menu-trigger" aria-label="Open navigation" onClick={()=>setMobileNavOpen(true)}><Menu/></button>:<TopBar onMenu={() => setMobileNavOpen(true)} />}
         <Outlet />
       </div>
     </div>
