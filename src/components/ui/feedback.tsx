@@ -1,6 +1,7 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useId, useRef, useState } from 'react';
 import type React from 'react';
 import { AlertCircle, CheckCircle2, X } from 'lucide-react';
+import './feedback.css';
 
 const ToastContext = createContext(null);
 
@@ -44,19 +45,43 @@ export function useToast() {
 }
 
 export function Modal({ open, title, description, children, onClose, footer }: { open: boolean; title: string; description?: string; children: React.ReactNode; onClose: () => void; footer?: React.ReactNode }) {
+  const titleId = useId();
+  const descriptionId = useId();
+  const dialogRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const timer = window.setTimeout(() => {
+      const firstField = dialogRef.current?.querySelector<HTMLElement>('.modal-body input, .modal-body select, .modal-body textarea');
+      (firstField ?? dialogRef.current)?.focus();
+    }, 0);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    document.body.classList.add('modal-open');
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.classList.remove('modal-open');
+      previous?.focus?.();
+    };
+  }, [open, onClose]);
+
   if (!open) return null;
   return (
     <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <section className="modal" role="dialog" aria-modal="true" aria-label={title}>
-        <header>
+      <section ref={dialogRef} className="modal" role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={description ? descriptionId : undefined} tabIndex={-1}>
+        <header className="modal-header">
           <div>
-            <h2>{title}</h2>
-            {description && <p>{description}</p>}
+            <h2 id={titleId}>{title}</h2>
+            {description && <p id={descriptionId}>{description}</p>}
           </div>
-          <button className="icon-button" aria-label="Close dialog" onClick={onClose}><X /></button>
+          <button className="icon-button modal-close" aria-label="Close dialog" onClick={onClose}><X /></button>
         </header>
         <div className="modal-body">{children}</div>
-        {footer && <footer>{footer}</footer>}
+        {footer && <footer className="modal-footer">{footer}</footer>}
       </section>
     </div>
   );
@@ -76,7 +101,7 @@ export function ConfirmDialog({ open, title, description, onClose, onConfirm, co
         </>
       }
     >
-      <p>{danger ? 'This action cannot be undone.' : 'Please review the details before continuing.'}</p>
+      <p className="confirm-dialog-copy">{danger ? 'This action cannot be undone.' : 'Please review the details before continuing.'}</p>
     </Modal>
   );
 }
