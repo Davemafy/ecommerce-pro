@@ -29,8 +29,17 @@ export function InventoryPage(){
  const start=rows.length?(currentPage-1)*PAGE_SIZE+1:0;
  const end=Math.min(currentPage*PAGE_SIZE,rows.length);
 
+ const closeAdjustment=()=>{setAdjusting(false);setError('');};
  const openAdjustment=(sku:string)=>{setForm({sku,quantity:'',reason:''});setError('');setAdjusting(true)};
- const apply=()=>{if(!data.products.some(p=>p.sku===form.sku)){setError('Enter a valid product SKU.');return;} if(!Number(form.quantity)){setError('Enter a non-zero quantity adjustment.');return;} adjustInventory(form.sku,Number(form.quantity));setAdjusting(false);setForm({sku:'',quantity:'',reason:''});setError('');toast('Inventory updated');};
+ const apply=()=>{
+   if(!data.products.some(p=>p.sku===form.sku)){setError('Enter a valid product SKU.');return;}
+   const quantity=Number(form.quantity);
+   if(!Number.isFinite(quantity)||quantity===0){setError('Enter a non-zero quantity adjustment.');return;}
+   const product=data.products.find(p=>p.sku===form.sku);
+   if(product&&product.stock+quantity<0){setError(`This adjustment would take stock below zero. Current stock is ${product.stock}.`);return;}
+   adjustInventory(form.sku,quantity);closeAdjustment();setForm({sku:'',quantity:'',reason:''});toast('Inventory updated');
+ };
+ const valid=Boolean(form.sku.trim())&&Number(form.quantity)!==0;
 
  return <main className="figma-page inventory-figma">
    <div className="figma-page-heading"><div><h1>Inventory Management</h1><p>Manage stock levels, locations, and reorder points.</p></div><div className="page-actions"><button className={lowOnly?'inventory-filter-active':''} onClick={()=>{setLowOnly(value=>!value);setPage(1)}}><Filter/>{lowOnly?'Show All':'Low Stock'}</button><ExportButton data={rows} filename="commercepro-inventory.csv"/></div></div>
@@ -40,6 +49,6 @@ export function InventoryPage(){
    {visibleRows.map((p,i)=>{const critical=p.stock<=3,lowStock=p.stock<=12;return <tr key={p.id} className={lowStock?'inventory-alert-row':''}><td className={lowStock?'danger':''}><strong>{p.name}</strong></td><td className="mono">{p.sku}</td><td>{p.category}</td><td>{((currentPage-1)*PAGE_SIZE+i)%2?'WH-B, Rack 2':'WH-A, Aisle 4'}</td><td className={`number ${lowStock?'danger':''}`}><b>{p.stock}</b></td><td className="number">{critical?15:Math.max(20,Math.round(p.stock*.35))}</td><td><span className={`inventory-status-chip ${critical?'critical':lowStock?'low':'ok'}`}>{critical?'Critical':lowStock?'Low Stock':'In Stock'}</span></td><td className="action-column"><button className="bare inventory-action" title="Adjust inventory" aria-label={`Adjust ${p.name} inventory`} onClick={()=>openAdjustment(p.sku)}>{lowStock?<ShoppingCart/>:<MoreVertical/>}</button></td></tr>})}
    {!visibleRows.length&&<tr><td colSpan={8}><div className="table-empty-state"><strong>No inventory matches these filters.</strong><span>Try another search or show all inventory.</span></div></td></tr>}
    </tbody></table><footer className="table-footer"><strong>Showing {start} to {end} of {rows.length} products</strong><div><button disabled={currentPage<=1} onClick={()=>setPage(value=>Math.max(1,value-1))}>‹</button><span className="pagination-summary">Page {currentPage} of {pageCount}</span><button disabled={currentPage>=pageCount} onClick={()=>setPage(value=>Math.min(pageCount,value+1))}>›</button></div></footer></section>
-   <Modal open={adjusting} title="Adjust inventory" description="Record a stock correction with an optional reason." onClose={()=>setAdjusting(false)} footer={<><button onClick={()=>setAdjusting(false)}>Cancel</button><button className="primary" onClick={apply}>Apply adjustment</button></>}><FormFields values={form} onChange={(n,v)=>setForm(x=>({...x,[n]:v}))} fields={[{name:'sku',label:'Product SKU'},{name:'quantity',label:'Quantity adjustment',type:'number'},{name:'reason',label:'Reason'}]}/>{error&&<p className="form-error">{error}</p>}</Modal>
+   <Modal open={adjusting} title="Adjust inventory" description="Record a stock correction. Positive numbers add stock; negative numbers remove it." onClose={closeAdjustment} footer={<><button onClick={closeAdjustment}>Cancel</button><button className="primary" disabled={!valid} onClick={apply}>Apply adjustment</button></>}><FormFields values={form} onChange={(n,v)=>{setError('');setForm(x=>({...x,[n]:v}))}} fields={[{name:'sku',label:'Product SKU',placeholder:data.products[0]?.sku||'SKU-001',required:true},{name:'quantity',label:'Quantity adjustment',type:'number',placeholder:'e.g. 25 or -2',required:true},{name:'reason',label:'Reason',placeholder:'Restock, damaged item, recount...'}]}/>{error&&<p className="form-error">{error}</p>}</Modal>
  </main>;
 }
