@@ -38,6 +38,7 @@ export function useStore() {
       const created = { id: `ORD-${1009 + data.orders.length}`, customerId: customer.id, customer: customer.name, date: new Date().toISOString().slice(0, 10), total: product.price * qty, status: 'Pending', sku: product.sku, quantity: qty };
       commit((d: any) => ({ ...d, orders: [created, ...d.orders], products: d.products.map((p: any) => p.id === product.id ? { ...p, stock: p.stock - qty } : p) }));
     },
+    updateOrderStatus(id: string, status: 'Pending' | 'Processing' | 'Completed') { commit((d: any) => ({ ...d, orders: d.orders.map((order: any) => order.id === id ? { ...order, status } : order) })); },
     adjustInventory(sku: string, amount: number) { commit((d: any) => ({ ...d, products: d.products.map((p: any) => p.sku === sku ? { ...p, stock: Math.max(0, p.stock + Number(amount)) } : p) })); },
     updateSettings(section: string, patch: any) { commit((d: any) => ({ ...d, settings: { ...d.settings, [section]: { ...d.settings[section], ...patch } } })); },
     resetDemoData() { queryClient.setQueryData(DATA_KEY, commerceService.referenceData); },
