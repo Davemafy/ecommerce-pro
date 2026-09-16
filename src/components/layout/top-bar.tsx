@@ -11,6 +11,8 @@ export function TopBar({ onMenu }: { onMenu?: () => void }) {
   const location = useLocation();
   const [search, setSearch] = useState('');
   const isOrderDetail = /^\/orders\/[^/]+$/.test(location.pathname);
+  const isProductDetail = /^\/products\/[^/]+$/.test(location.pathname);
+  const isDetailPage = isOrderDetail || isProductDetail;
 
   const openStorefront = () => {
     const url = import.meta.env.VITE_STOREFRONT_URL;
@@ -23,12 +25,12 @@ export function TopBar({ onMenu }: { onMenu?: () => void }) {
     if (query) navigate(`/products?search=${encodeURIComponent(query)}`);
   };
 
-  if (isOrderDetail) {
+  if (isDetailPage) {
     return (
-      <header className="topbar order-detail-topbar">
+      <header className="topbar detail-topbar">
         <button className="mobile-menu-trigger" aria-label="Open navigation" onClick={onMenu}><Menu /></button>
-        <strong className="order-topbar-title">Dashboard</strong>
-        <label className="order-topbar-search">
+        <strong className="detail-topbar-title">{isProductDetail?'Products':'Dashboard'}</strong>
+        <label className="detail-topbar-search">
           <Search />
           <input value={search} onChange={(event)=>setSearch(event.target.value)} onKeyDown={(event)=>{ if(event.key==='Enter') submitSearch(); }} placeholder="Search..." aria-label="Search" />
         </label>
@@ -53,8 +55,9 @@ export function TopBar({ onMenu }: { onMenu?: () => void }) {
               <DropdownMenuItem onSelect={()=>toast('Support request started')}><LifeBuoy/>Contact Support</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <button className="order-topbar-support" onClick={()=>toast('Support request started')}>Support</button>
-          <button className="primary order-topbar-new" onClick={()=>navigate('/products')}>New Product</button>
+          <span className="detail-topbar-divider"/>
+          <button className="detail-topbar-support" onClick={()=>toast('Support request started')}>Support</button>
+          <button className="primary detail-topbar-new" onClick={()=>navigate('/products?new=1')}>New Product</button>
           <img className="admin-avatar-image" src={adminPfp} alt="Admin User"/>
         </div>
       </header>
