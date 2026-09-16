@@ -22,7 +22,7 @@ const seed = {
     { id:'ORD-1002', customerId:'customer-1', customer:'Eleanor Richards', date:'2026-08-29', total:149, status:'Completed', sku:'KB-PRO-W-01', quantity:1 },
     { id:'ORD-1001', customerId:'customer-2', customer:'Marcus Lee', date:'2026-08-27', total:59, status:'Completed', sku:'LS-ALU-02', quantity:1 },
   ],
-  settings: { general:{storeName:'CommercePro Official',currency:'USD',timezone:'West Africa Time (WAT) - UTC+1',logoName:''}, team:{inviteEmail:'',defaultRole:'Staff'}, payments:{payoutSchedule:'Weekly',invoiceEmail:'billing@commercepro.com'}, notifications:{orders:true,inventory:true,reports:false}, security:{twoFactor:true,sessionAlerts:true} },
+  settings: { general:{storeName:'CommercePro Official',currency:'USD',timezone:'West Africa Time (WAT) - UTC+1',logoName:'',logoData:''}, team:{inviteEmail:'',defaultRole:'Staff'}, payments:{payoutSchedule:'Weekly',invoiceEmail:'billing@commercepro.com'}, notifications:{orders:true,inventory:true,reports:false}, security:{twoFactor:true,sessionAlerts:true} },
 };
 
 let runtimeData = structuredClone(seed);
