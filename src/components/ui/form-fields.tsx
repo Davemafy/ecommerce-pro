@@ -1,15 +1,16 @@
 export function FormFields({ fields, values = {}, onChange, errors = {} }) {
   return (
     <div className="modal-form">
-      {fields.map(({ name, label, type = 'text', placeholder = '', required = false }) => (
+      {fields.map(({ name, label, type = 'text', placeholder = '', required = false, autoComplete }) => (
         <label key={name}>
-          {label}
+          <span className="field-label">{label}{required && <em aria-hidden="true">*</em>}</span>
           <input
             name={name}
             type={type}
             placeholder={placeholder}
             value={values[name] ?? ''}
             required={required}
+            autoComplete={autoComplete}
             onChange={(event) => onChange?.(name, event.target.value)}
             aria-invalid={Boolean(errors[name])}
           />
