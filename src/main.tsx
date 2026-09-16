@@ -10,6 +10,7 @@ import { StoreProvider } from './data/store';
 import './styles.css';
 import './mobile-fixes.css';
 import './mobile-product-controls.css';
+import './review-fixes.css';
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: 1 } } });
 
@@ -19,8 +20,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <QueryClientProvider client={queryClient}>
         <StoreProvider>
           <ToastProvider>
-        <RouterProvider router={router} />
-      </ToastProvider>
+            <RouterProvider router={router} />
+          </ToastProvider>
         </StoreProvider>
       </QueryClientProvider>
     </Provider>
