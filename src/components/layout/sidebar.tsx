@@ -52,8 +52,8 @@ export function Sidebar({ mobileOpen = false, onNavigate }: { mobileOpen?: boole
       </div>
 
       <div className="figma-sidebar-profile">
-        <NavLink to="/settings/profile" onClick={onNavigate} className="figma-profile-link">
-          <img className="figma-profile-image" src={adminPfp} alt="" />
+        <NavLink to="/settings/general" onClick={onNavigate} className="figma-profile-link">
+          <img className="figma-profile-image" src={adminPfp} alt="Admin User" />
           <span>Admin User</span>
           <ExternalLink className="figma-external-icon" aria-hidden="true" />
         </NavLink>
