@@ -1,6 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { App } from './app';
 import { LoginPage } from '../features/auth/login-page';
+import { RequireAuth } from '../features/auth/auth-session';
 import { DashboardPage } from '../features/dashboard/dashboard-page';
 import { OrdersPage } from '../features/orders/orders-page';
 import { OrderDetailPage } from '../features/orders/order-detail-page';
@@ -15,7 +16,7 @@ import { RouteErrorPage } from '../components/ui/route-error-page';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage />, errorElement: <RouteErrorPage /> },
-  { path: '/', element: <App />, errorElement: <RouteErrorPage />, children: [
+  { path: '/', element: <RequireAuth><App /></RequireAuth>, errorElement: <RouteErrorPage />, children: [
     { index: true, element: <DashboardPage /> },
     { path: 'orders', children: [{ index:true, element:<OrdersPage/> },{ path:':orderId', element:<OrderDetailPage/> }] },
     { path: 'products', children: [{ index:true, element:<ProductsPage/> },{ path:':productId', element:<ProductDetailPage/> }] },
