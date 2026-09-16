@@ -11,37 +11,95 @@ export function TopBar({ onMenu }: { onMenu?: () => void }) {
   const location = useLocation();
   const [search, setSearch] = useState('');
   const isOrderDetail = /^\/orders\/[^/]+$/.test(location.pathname);
+
   const openStorefront = () => {
     const url = import.meta.env.VITE_STOREFRONT_URL;
     if (url) window.open(url, '_blank', 'noopener,noreferrer');
     else toast('Storefront URL is not configured yet');
   };
+
   const submitSearch = () => {
     const query = search.trim();
     if (query) navigate(`/products?search=${encodeURIComponent(query)}`);
   };
 
   if (isOrderDetail) {
-    return <header className="topbar order-detail-topbar">
-      <button className="mobile-menu-trigger" aria-label="Open navigation" onClick={onMenu}><Menu /></button>
-      <strong className="order-topbar-title">Dashboard</strong>
-      <label className="order-topbar-search"><Search/><input value={search} onChange={(event)=>setSearch(event.target.value)} onKeyDown={(event)=>{if(event.key==='Enter')submitSearch();}} placeholder="Search..." aria-label="Search"/></label>
-      <div className="topbar-actions">
-        <DropdownMenu><DropdownMenuTrigger asChild><button className="topbar-icon notification-trigger" aria-label="Notifications"><Bell/><span className="notification-dot"/></button></DropdownMenuTrigger><DropdownMenuContent align="end" className="notification-menu"><DropdownMenuLabel>Notifications</DropdownMenuLabel><DropdownMenuSeparator/><DropdownMenuItem className="notification-item"><span className="notification-icon"><ShoppingCart/></span><span><b>New order received</b><small>Order #ORD-1009 for $349.00 · 2 min ago</small></span></DropdownMenuItem><DropdownMenuItem className="notification-item"><span className="notification-icon"><Package/></span><span><b>Low stock alert</b><small>Ergo Laptop Stand has 3 units left · 18 min ago</small></span></DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem onSelect={()=>toast('All notifications marked as read')}>Mark all as read</DropdownMenuItem></DropdownMenu>
-        <DropdownMenu><DropdownMenuTrigger asChild><button className="topbar-icon" aria-label="Help"><CircleHelp/></button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuLabel>Help & support</DropdownMenuLabel><DropdownMenuSeparator/><DropdownMenuItem onSelect={()=>toast('Help center opened')}><BookOpen/>Help Center</DropdownMenuItem><DropdownMenuItem onSelect={()=>toast('Support request started')}><LifeBuoy/>Contact Support</DropdownMenuItem></DropdownMenuContent></DropdownMenu>
-        <button className="order-topbar-support" onClick={()=>toast('Support request started')}>Support</button>
-        <button className="primary order-topbar-new" onClick={()=>navigate('/products')}>New Product</button>
-        <img className="admin-avatar-image" src={adminPfp} alt="Admin User"/>
-      </div>
-    </header>;
+    return (
+      <header className="topbar order-detail-topbar">
+        <button className="mobile-menu-trigger" aria-label="Open navigation" onClick={onMenu}><Menu /></button>
+        <strong className="order-topbar-title">Dashboard</strong>
+        <label className="order-topbar-search">
+          <Search />
+          <input value={search} onChange={(event)=>setSearch(event.target.value)} onKeyDown={(event)=>{ if(event.key==='Enter') submitSearch(); }} placeholder="Search..." aria-label="Search" />
+        </label>
+        <div className="topbar-actions">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild><button className="topbar-icon notification-trigger" aria-label="Notifications"><Bell/><span className="notification-dot"/></button></DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="notification-menu">
+              <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+              <DropdownMenuSeparator/>
+              <DropdownMenuItem className="notification-item"><span className="notification-icon"><ShoppingCart/></span><span><b>New order received</b><small>Order #ORD-1009 for $349.00 · 2 min ago</small></span></DropdownMenuItem>
+              <DropdownMenuItem className="notification-item"><span className="notification-icon"><Package/></span><span><b>Low stock alert</b><small>Ergo Laptop Stand has 3 units left · 18 min ago</small></span></DropdownMenuItem>
+              <DropdownMenuSeparator/>
+              <DropdownMenuItem onSelect={()=>toast('All notifications marked as read')}>Mark all as read</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild><button className="topbar-icon" aria-label="Help"><CircleHelp/></button></DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Help & support</DropdownMenuLabel>
+              <DropdownMenuSeparator/>
+              <DropdownMenuItem onSelect={()=>toast('Help center opened')}><BookOpen/>Help Center</DropdownMenuItem>
+              <DropdownMenuItem onSelect={()=>toast('Support request started')}><LifeBuoy/>Contact Support</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <button className="order-topbar-support" onClick={()=>toast('Support request started')}>Support</button>
+          <button className="primary order-topbar-new" onClick={()=>navigate('/products')}>New Product</button>
+          <img className="admin-avatar-image" src={adminPfp} alt="Admin User"/>
+        </div>
+      </header>
+    );
   }
 
-  return <header className="topbar">
-    <button className="mobile-menu-trigger" aria-label="Open navigation" onClick={onMenu}><Menu /></button><div className="topbar-spacer"/><div className="topbar-actions">
-      <DropdownMenu><DropdownMenuTrigger asChild><button className="topbar-icon notification-trigger" aria-label="Notifications"><Bell/><span className="notification-dot"/></button></DropdownMenuTrigger><DropdownMenuContent align="end" className="notification-menu"><DropdownMenuLabel>Notifications</DropdownMenuLabel><DropdownMenuSeparator/><DropdownMenuItem className="notification-item"><span className="notification-icon"><ShoppingCart/></span><span><b>New order received</b><small>Order #ORD-1009 for $349.00 · 2 min ago</small></span></DropdownMenuItem><DropdownMenuItem className="notification-item"><span className="notification-icon"><Package/></span><span><b>Low stock alert</b><small>Ergo Laptop Stand has 3 units left · 18 min ago</small></span></DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem onSelect={()=>toast('All notifications marked as read')}>Mark all as read</DropdownMenuItem></DropdownMenu>
-      <DropdownMenu><DropdownMenuTrigger asChild><button className="topbar-icon" aria-label="Help"><CircleHelp/></button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuLabel>Help & support</DropdownMenuLabel><DropdownMenuSeparator/><DropdownMenuItem onSelect={()=>toast('Help center opened')}><BookOpen/>Help Center</DropdownMenuItem><DropdownMenuItem onSelect={()=>toast('Support request started')}><LifeBuoy/>Contact Support</DropdownMenuItem></DropdownMenuContent></DropdownMenu>
-      <DropdownMenu><DropdownMenuTrigger asChild><button className="topbar-icon" aria-label="Apps"><Grid3X3/></button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuLabel>CommercePro</DropdownMenuLabel><DropdownMenuSeparator/><DropdownMenuItem onSelect={()=>navigate('/orders')}><ShoppingCart/>Orders</DropdownMenuItem><DropdownMenuItem onSelect={()=>navigate('/products')}><Package/>Products</DropdownMenuItem><DropdownMenuItem onSelect={()=>navigate('/customers')}><Users/>Customers</DropdownMenuItem></DropdownMenuContent></DropdownMenu>
-      <span className="topbar-divider"/><button className="view-site" onClick={openStorefront}>View Site <ExternalLink/></button><img className="admin-avatar-image" src={adminPfp} alt="Admin User"/>
-    </div>
-  </header>;
+  return (
+    <header className="topbar">
+      <button className="mobile-menu-trigger" aria-label="Open navigation" onClick={onMenu}><Menu /></button>
+      <div className="topbar-spacer"/>
+      <div className="topbar-actions">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild><button className="topbar-icon notification-trigger" aria-label="Notifications"><Bell/><span className="notification-dot"/></button></DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="notification-menu">
+            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+            <DropdownMenuSeparator/>
+            <DropdownMenuItem className="notification-item"><span className="notification-icon"><ShoppingCart/></span><span><b>New order received</b><small>Order #ORD-1009 for $349.00 · 2 min ago</small></span></DropdownMenuItem>
+            <DropdownMenuItem className="notification-item"><span className="notification-icon"><Package/></span><span><b>Low stock alert</b><small>Ergo Laptop Stand has 3 units left · 18 min ago</small></span></DropdownMenuItem>
+            <DropdownMenuSeparator/>
+            <DropdownMenuItem onSelect={()=>toast('All notifications marked as read')}>Mark all as read</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild><button className="topbar-icon" aria-label="Help"><CircleHelp/></button></DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Help & support</DropdownMenuLabel>
+            <DropdownMenuSeparator/>
+            <DropdownMenuItem onSelect={()=>toast('Help center opened')}><BookOpen/>Help Center</DropdownMenuItem>
+            <DropdownMenuItem onSelect={()=>toast('Support request started')}><LifeBuoy/>Contact Support</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild><button className="topbar-icon" aria-label="Apps"><Grid3X3/></button></DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>CommercePro</DropdownMenuLabel>
+            <DropdownMenuSeparator/>
+            <DropdownMenuItem onSelect={()=>navigate('/orders')}><ShoppingCart/>Orders</DropdownMenuItem>
+            <DropdownMenuItem onSelect={()=>navigate('/products')}><Package/>Products</DropdownMenuItem>
+            <DropdownMenuItem onSelect={()=>navigate('/customers')}><Users/>Customers</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <span className="topbar-divider"/>
+        <button className="view-site" onClick={openStorefront}>View Site <ExternalLink/></button>
+        <img className="admin-avatar-image" src={adminPfp} alt="Admin User"/>
+      </div>
+    </header>
+  );
 }
