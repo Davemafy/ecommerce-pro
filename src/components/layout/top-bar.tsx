@@ -12,15 +12,12 @@ export function TopBar({ onMenu }: { onMenu?: () => void }) {
   const location = useLocation();
   const [search, setSearch] = useState('');
   const [hasUnread,setHasUnread]=useState(true);
+  const storefrontUrl=import.meta.env.VITE_STOREFRONT_URL;
   const isOrderDetail = /^\/orders\/[^/]+$/.test(location.pathname);
   const isProductDetail = /^\/products\/[^/]+$/.test(location.pathname);
   const isDetailPage = isOrderDetail || isProductDetail;
 
-  const openStorefront = () => {
-    const url = import.meta.env.VITE_STOREFRONT_URL;
-    if (url) window.open(url, '_blank', 'noopener,noreferrer');
-    else toast('Storefront preview is not configured for this environment','error');
-  };
+  const openStorefront = () => { if (storefrontUrl) window.open(storefrontUrl, '_blank', 'noopener,noreferrer'); };
   const openSupport=()=>{window.location.href='mailto:support@commercepro.com?subject=CommercePro%20Admin%20Support';};
   const submitSearch = () => { const query = search.trim(); if (query) navigate(`/products?search=${encodeURIComponent(query)}`); };
   const logout=()=>{endSession();navigate('/login',{replace:true});};
@@ -49,5 +46,5 @@ export function TopBar({ onMenu }: { onMenu?: () => void }) {
     return <header className="topbar detail-topbar"><button className="mobile-menu-trigger" aria-label="Open navigation" onClick={onMenu}><Menu /></button><strong className="detail-topbar-title">{isProductDetail?'Products':'Dashboard'}</strong><label className="detail-topbar-search"><Search /><input value={search} onChange={(event)=>setSearch(event.target.value)} onKeyDown={(event)=>{ if(event.key==='Enter') submitSearch(); }} placeholder="Search..." aria-label="Search" /></label><div className="topbar-actions"><Notifications/><Help/><span className="detail-topbar-divider"/><button className="detail-topbar-support" onClick={openSupport}>Support</button><button className="primary detail-topbar-new" onClick={()=>navigate('/products?new=1')}>New Product</button><Profile/></div></header>;
   }
 
-  return <header className="topbar"><button className="mobile-menu-trigger" aria-label="Open navigation" onClick={onMenu}><Menu /></button><div className="topbar-spacer"/><div className="topbar-actions"><Notifications/><Help/><DropdownMenu><DropdownMenuTrigger asChild><button className="topbar-icon" aria-label="Apps"><Grid3X3/></button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuLabel>CommercePro</DropdownMenuLabel><DropdownMenuSeparator/><DropdownMenuItem onSelect={()=>navigate('/orders')}><ShoppingCart/>Orders</DropdownMenuItem><DropdownMenuItem onSelect={()=>navigate('/products')}><Package/>Products</DropdownMenuItem><DropdownMenuItem onSelect={()=>navigate('/customers')}><Users/>Customers</DropdownMenuItem></DropdownMenuContent></DropdownMenu><span className="topbar-divider"/><button className="view-site" onClick={openStorefront}>View Site <ExternalLink/></button><Profile/></div></header>;
+  return <header className="topbar"><button className="mobile-menu-trigger" aria-label="Open navigation" onClick={onMenu}><Menu /></button><div className="topbar-spacer"/><div className="topbar-actions"><Notifications/><Help/><DropdownMenu><DropdownMenuTrigger asChild><button className="topbar-icon" aria-label="Apps"><Grid3X3/></button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuLabel>CommercePro</DropdownMenuLabel><DropdownMenuSeparator/><DropdownMenuItem onSelect={()=>navigate('/orders')}><ShoppingCart/>Orders</DropdownMenuItem><DropdownMenuItem onSelect={()=>navigate('/products')}><Package/>Products</DropdownMenuItem><DropdownMenuItem onSelect={()=>navigate('/customers')}><Users/>Customers</DropdownMenuItem></DropdownMenuContent></DropdownMenu><span className="topbar-divider"/><button className="view-site" disabled={!storefrontUrl} title={storefrontUrl?'Open storefront':'Set VITE_STOREFRONT_URL to enable storefront preview'} onClick={openStorefront}>View Site <ExternalLink/></button><Profile/></div></header>;
 }
