@@ -22,7 +22,11 @@ export const router = createBrowserRouter([
     { path: 'customers', children: [{ index:true, element:<CustomersPage/> },{ path:':customerId', element:<CustomerDetailPage/> }] },
     { path:'inventory', element:<InventoryPage/> },
     { path:'reports', element:<ReportsPage/> },
-    { path:'settings', children:[{ index:true, element:<Navigate to="/settings/general" replace/> },{ path:':section', element:<SettingsPage/> }] },
+    { path:'settings', children:[
+      { index:true, element:<Navigate to="/settings/general" replace/> },
+      { path:'profile', element:<Navigate to="/settings/general" replace/> },
+      { path:':section', element:<SettingsPage/> },
+    ] },
     { path:'*', element:<Navigate to="/" replace/> },
   ]},
 ]);
