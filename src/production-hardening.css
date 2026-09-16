@@ -171,6 +171,24 @@ button:disabled {
 .table-card,
 .figma-table-card { scrollbar-gutter: stable; }
 .table-empty-state { min-height:150px; }
+.pagination-bar {
+  min-height:60px;
+  margin-top:-1px;
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  border:1px solid #e0e3e5;
+  border-radius:0 0 12px 12px;
+  background:#fff;
+  color:#667085;
+  font-size:12px;
+}
+.pagination-bar > div { display:flex; align-items:center; gap:8px; }
+.pagination-bar button { width:34px; height:34px; min-height:34px; padding:0; }
+.pagination-bar strong { color:#475467; font-size:12px; font-weight:600; }
+.table-card + .pagination-bar { border-top-color:#eef0f3; }
 
 @media (max-height: 820px) and (min-width: 721px) {
   .modal-backdrop { padding:16px !important; }
@@ -197,4 +215,6 @@ button:disabled {
   .product-visual-lg { min-height:220px; }
   .figma-sidebar-profile { padding-right:12px !important; }
   .figma-sidebar-logout { flex:0 0 36px; }
+  .pagination-bar { align-items:flex-start; flex-direction:column; }
+  .pagination-bar > div { width:100%; justify-content:space-between; }
 }
