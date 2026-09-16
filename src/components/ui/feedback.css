@@ -4,14 +4,15 @@ body.modal-open { overflow: hidden; }
   position: fixed;
   inset: 0;
   width: 100vw;
-  height: 100dvh;
-  z-index: 2147483000;
-  display: grid;
-  place-items: center;
-  overflow-y: auto;
+  height: 100vh;
+  z-index: 2147483647 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
   padding: 24px;
   isolation: isolate;
-  background: rgba(20, 24, 33, .48);
+  background: rgba(20, 24, 33, .52);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   animation: modal-backdrop-in .16s ease-out both;
@@ -21,7 +22,8 @@ body.modal-open { overflow: hidden; }
   position: relative;
   z-index: 1;
   width: min(488px, 100%);
-  max-height: min(760px, calc(100dvh - 48px));
+  max-height: calc(100vh - 48px);
+  margin: auto;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -35,6 +37,7 @@ body.modal-open { overflow: hidden; }
 .modal:focus { outline: none; }
 
 .modal-header {
+  flex: 0 0 auto;
   min-height: 76px;
   padding: 20px 24px;
   display: flex;
@@ -79,8 +82,11 @@ body.modal-open { overflow: hidden; }
 .modal-close svg { width: 18px; height: 18px; }
 
 .modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
   padding: 22px 24px 24px;
-  overflow: auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: #fff;
 }
 
@@ -136,6 +142,7 @@ body.modal-open { overflow: hidden; }
 }
 
 .modal-footer {
+  flex: 0 0 auto;
   min-height: 72px;
   padding: 15px 24px;
   display: flex;
@@ -192,12 +199,12 @@ body.modal-open { overflow: hidden; }
 
 @media (max-width: 600px) {
   .modal-backdrop {
-    align-items: end;
+    align-items: flex-end;
     padding: 12px;
   }
   .modal {
     width: 100%;
-    max-height: calc(100dvh - 24px);
+    max-height: calc(100vh - 24px);
     border-radius: 14px;
   }
   .modal-header,
