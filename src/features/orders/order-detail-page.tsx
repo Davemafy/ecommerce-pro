@@ -37,7 +37,7 @@ export function OrderDetailPage(){
 
         <section className="order-panel order-payment-panel">
           <h2>Payment Summary</h2>
-          <div className="order-payment-grid"><div className="order-totals"><div><span>Subtotal</span><b>${order.total.toFixed(2)}</b></div><div><span>Shipping (Standard)</span><b>$0.00</b></div><div><span>Tax</span><b>$0.00</b></div><div className="order-total"><strong>Total</strong><strong>${order.total.toFixed(2)}</strong></div></div><div className="order-payment-method"><CreditCard/><div><strong>Paid via Credit Card</strong><p>Card payment</p><small>Transaction ID: txn_{order.id.toLowerCase().replaceAll('-','')}</small></div></div></div>
+          <div className="order-payment-grid"><div className="order-totals"><div><span>Subtotal</span><b>${order.total.toFixed(2)}</b></div><div><span>Shipping (Standard)</span><b>$0.00</b></div><div><span>Tax</span><b>$0.00</b></div><div className="order-total"><strong>Total</strong><strong>${order.total.toFixed(2)}</strong></div></div><div className="order-payment-method"><CreditCard/><div><strong>Paid via Credit Card</strong><p>Card payment</p><small>Transaction ID: txn_{order.id.toLowerCase().replace(/-/g,'')}</small></div></div></div>
         </section>
       </div>
 
