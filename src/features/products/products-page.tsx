@@ -119,7 +119,12 @@ export function ProductsPage() {
       setPage(1);
       toast('Product added');
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Could not add product.');
+      const message = cause instanceof Error ? cause.message : 'Could not add product.';
+      setError(
+        /category: .*not a valid enum value/i.test(message)
+          ? 'That category is not accepted by the backend. Use an existing product category. The API docs do not currently list the allowed category values.'
+          : message
+      );
     }
   };
 
@@ -297,6 +302,7 @@ export function ProductsPage() {
               label: 'Category',
               placeholder: 'e.g. Electronics',
               required: true,
+              options: categories,
             },
             {
               name: 'price',
