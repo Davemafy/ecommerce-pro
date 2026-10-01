@@ -14,7 +14,6 @@ import { InventoryPage } from '../features/inventory/inventory-page';
 import { ReportsPage } from '../features/reports/reports-page';
 import { SettingsPage } from '../features/settings/settings-page';
 import { RouteErrorPage } from '../components/ui/route-error-page';
-import { QaPage } from '../features/qa/qa-page';
 
 export const router = createBrowserRouter([
   { path: '/setup', element: <SetupPage />, errorElement: <RouteErrorPage /> },
@@ -50,7 +49,6 @@ export const router = createBrowserRouter([
           { path: ':customerId', element: <CustomerDetailPage /> },
         ],
       },
-      { path: 'qa', element: <QaPage /> },
       { path: 'inventory', element: <InventoryPage /> },
       { path: 'reports', element: <ReportsPage /> },
       {
