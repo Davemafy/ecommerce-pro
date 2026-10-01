@@ -53,6 +53,8 @@ export function useStore() {
       execute(() => commerceService.updateProduct(productApiId(id), patch)),
     archiveProduct: (id: string) =>
       execute(() => commerceService.setProductStatus(productApiId(id), 'draft')),
+    uploadProductImages: (id: string, files: File[]) =>
+      execute(() => commerceService.uploadProductImages(productApiId(id), files)),
     addCustomer: (customer: any) => execute(() => commerceService.createCustomer(customer)),
     updateCustomer: (id: string, patch: any) =>
       execute(() => commerceService.updateCustomer(customerApiId(id), patch)),
