@@ -49,6 +49,8 @@ export function Modal({ open, title, description, children, onClose, footer }: {
   const titleId = useId();
   const descriptionId = useId();
   const dialogRef = useRef<HTMLElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!open) return;
@@ -58,7 +60,7 @@ export function Modal({ open, title, description, children, onClose, footer }: {
       (firstField ?? dialogRef.current)?.focus();
     }, 0);
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') onCloseRef.current();
     };
     document.addEventListener('keydown', onKeyDown);
     document.body.classList.add('modal-open');
@@ -68,7 +70,7 @@ export function Modal({ open, title, description, children, onClose, footer }: {
       document.body.classList.remove('modal-open');
       previous?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
