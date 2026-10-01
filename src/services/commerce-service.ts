@@ -299,6 +299,10 @@ export const commerceService = {
     return productService.update(id, { status });
   },
 
+  uploadProductImages(id: string, files: File[]) {
+    return productService.uploadImages(id, files);
+  },
+
   createCustomer(customer: any) {
     return customerService.create({
       name: customer.name,
