@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { authService } from '../../api/services';
 
-const SESSION_KEY = 'commercepro-authenticated';
+const SESSION_KEY = 'commercepro-api-authenticated-v1';
 
 export function isAuthenticated() {
   if (typeof window === 'undefined') return false;
