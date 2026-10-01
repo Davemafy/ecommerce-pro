@@ -60,7 +60,7 @@ const fulfillmentStatus = (value?: string) => {
   return 'Pending';
 };
 
-function normalizeProduct(raw: any) {
+export function normalizeProduct(raw: any) {
   return {
     ...raw,
     id: raw?._id || raw?.id || raw?.sku,
@@ -95,7 +95,7 @@ function addressText(address: any) {
     .join(', ');
 }
 
-function normalizeCustomer(raw: any) {
+export function normalizeCustomer(raw: any) {
   const addresses = Array.isArray(raw?.addresses) ? raw.addresses : [];
   return {
     ...raw,
@@ -112,7 +112,7 @@ function normalizeCustomer(raw: any) {
   };
 }
 
-function normalizeOrder(raw: any) {
+export function normalizeOrder(raw: any) {
   const items = Array.isArray(raw?.items) ? raw.items : [];
   const first = items[0] || {};
   const orderNumber = raw?.orderNumber || raw?.id || raw?._id || '';
@@ -254,6 +254,37 @@ export const commerceService = {
           : structuredClone(emptySettings.notifications),
       },
     };
+  },
+
+  async getProductDetail(id: string) {
+    const response: any = await productService.get(id);
+    const raw: any = unwrapData(response) || {};
+    return normalizeProduct(raw.product || raw);
+  },
+
+  async getOrderDetail(id: string) {
+    const response: any = await orderService.get(id);
+    const raw: any = unwrapData(response) || {};
+    return normalizeOrder(raw.order || raw);
+  },
+
+  async getCustomerDetail(id: string) {
+    const response: any = await customerService.get(id);
+    const raw: any = unwrapData(response) || {};
+    const profile = raw.customer || raw.profile || raw;
+    const customer = normalizeCustomer(profile);
+    const detailOrders = Array.isArray(raw.orders) ? raw.orders.map(normalizeOrder) : [];
+    return {
+      ...customer,
+      detailOrders,
+      refunds: Array.isArray(raw.refunds) ? raw.refunds : Array.isArray(profile.refunds) ? profile.refunds : [],
+      notes: Array.isArray(raw.notes) ? raw.notes : Array.isArray(profile.notes) ? profile.notes : [],
+    };
+  },
+
+  async getProductInventoryHistory(id: string) {
+    const response: any = await inventoryService.productHistory(id);
+    return unwrapList(response, ['history', 'adjustments']);
   },
 
   createProduct(product: any) {
