@@ -23,7 +23,6 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: Format check
-        continue-on-error: true
         run: npm run format:check
       - name: Lint
         run: npm run lint
