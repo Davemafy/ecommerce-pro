@@ -57,7 +57,11 @@ export function buildDailyRevenueSeries(orders: OrderLike[], points = 8, anchorD
   });
 }
 
-export function buildPeriodRevenueSeries(orders: OrderLike[], range: string, anchorDate = new Date()) {
+export function buildPeriodRevenueSeries(
+  orders: OrderLike[],
+  range: string,
+  anchorDate = new Date()
+) {
   const { start, end } = rangeBounds(range, anchorDate);
   const count = range === 'Last 7 Days' ? 7 : 6;
   const windowMs = Math.max(1, end.getTime() - start.getTime() + 1);
@@ -65,19 +69,23 @@ export function buildPeriodRevenueSeries(orders: OrderLike[], range: string, anc
 
   return Array.from({ length: count }, (_, index) => {
     const bucketStart = new Date(start.getTime() + index * bucketMs);
-    const bucketEnd = index === count - 1
-      ? end
-      : new Date(Math.min(end.getTime(), bucketStart.getTime() + bucketMs - 1));
+    const bucketEnd =
+      index === count - 1
+        ? end
+        : new Date(Math.min(end.getTime(), bucketStart.getTime() + bucketMs - 1));
 
     const value = orders.reduce((sum, order) => {
       const date = orderDate(order.date);
-      return date && date >= bucketStart && date <= bucketEnd ? sum + Number(order.total || 0) : sum;
+      return date && date >= bucketStart && date <= bucketEnd
+        ? sum + Number(order.total || 0)
+        : sum;
     }, 0);
 
     return {
-      label: range === 'Last 7 Days'
-        ? bucketStart.toLocaleDateString('en-US', { weekday: 'short' })
-        : bucketStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      label:
+        range === 'Last 7 Days'
+          ? bucketStart.toLocaleDateString('en-US', { weekday: 'short' })
+          : bucketStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       value,
     };
   });

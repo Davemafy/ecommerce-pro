@@ -25,12 +25,24 @@ const items: Array<[string, string, LucideIcon]> = [
   ['/settings', 'Settings', Settings],
 ];
 
-export function Sidebar({ mobileOpen = false, onNavigate }: { mobileOpen?: boolean; onNavigate?: () => void }) {
+export function Sidebar({
+  mobileOpen = false,
+  onNavigate,
+}: {
+  mobileOpen?: boolean;
+  onNavigate?: () => void;
+}) {
   const navigate = useNavigate();
   const { data: admin } = useCurrentAdmin();
   const adminName = admin?.name || 'Administrator';
   const avatar = admin?.avatar || '';
-  const initials = adminName.split(' ').filter(Boolean).map((part: string) => part[0]).join('').slice(0, 2).toUpperCase();
+  const initials = adminName
+    .split(' ')
+    .filter(Boolean)
+    .map((part: string) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 
   const signOut = async () => {
     await logout();
@@ -41,12 +53,50 @@ export function Sidebar({ mobileOpen = false, onNavigate }: { mobileOpen?: boole
   return (
     <aside className={`figma-sidebar${mobileOpen ? ' mobile-open' : ''}`}>
       <div className="figma-sidebar-top">
-        <div className="figma-brand"><span className="figma-brand-icon"><Store /></span><div className="figma-brand-copy"><strong>CommercePro</strong><span>Enterprise Admin</span></div></div>
-        <nav className="figma-nav">{items.map(([to, label, Icon]) => <NavLink key={to} to={to} end={to === '/'} onClick={onNavigate} className={({ isActive }) => isActive ? 'is-active' : ''}><Icon aria-hidden="true" /><span>{label}</span></NavLink>)}</nav>
+        <div className="figma-brand">
+          <span className="figma-brand-icon">
+            <Store />
+          </span>
+          <div className="figma-brand-copy">
+            <strong>CommercePro</strong>
+            <span>Enterprise Admin</span>
+          </div>
+        </div>
+        <nav className="figma-nav">
+          {items.map(([to, label, Icon]) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/'}
+              onClick={onNavigate}
+              className={({ isActive }) => (isActive ? 'is-active' : '')}
+            >
+              <Icon aria-hidden="true" />
+              <span>{label}</span>
+            </NavLink>
+          ))}
+        </nav>
       </div>
       <div className="figma-sidebar-profile">
-        <NavLink to="/settings/general" onClick={onNavigate} className="figma-profile-link">{avatar ? <img className="figma-profile-image" src={avatar} alt={adminName}/> : <span className="figma-profile-image figma-profile-fallback" aria-hidden="true">{initials}</span>}<span>{adminName}</span><ExternalLink className="figma-external-icon" aria-hidden="true"/></NavLink>
-        <button className="figma-sidebar-logout" onClick={signOut} aria-label="Sign out" title="Sign out"><LogOut/></button>
+        <NavLink to="/settings/general" onClick={onNavigate} className="figma-profile-link">
+          {avatar ? (
+            <img className="figma-profile-image" src={avatar} alt={adminName} />
+          ) : (
+            <span className="figma-profile-image figma-profile-fallback" aria-hidden="true">
+              {initials}
+            </span>
+          )}
+          <span>{adminName}</span>
+          <ExternalLink className="figma-external-icon" aria-hidden="true" />
+        </NavLink>
+        <button
+          className="figma-sidebar-logout"
+          onClick={signOut}
+          aria-label="Sign out"
+          title="Sign out"
+        >
+          <LogOut />
+        </button>
       </div>
     </aside>
   );

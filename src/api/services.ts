@@ -62,7 +62,8 @@ export const authService = {
 };
 
 export const dashboardService = {
-  getOverview: (range: '7d' | '30d' | '90d' = '30d') => api.get(withQuery(endpoints.dashboard, { range })),
+  getOverview: (range: '7d' | '30d' | '90d' = '30d') =>
+    api.get(withQuery(endpoints.dashboard, { range })),
 };
 
 export const orderService = {
@@ -71,9 +72,11 @@ export const orderService = {
   create: (data: any) => api.post(endpoints.orders, data),
   updateStatus: (id: string, data: any) => api.patch(endpoints.orderStatus(id), data),
   addNote: (id: string, note: string) => api.post(endpoints.orderNotes(id), { note }),
-  refund: (id: string, data: { amount?: number; reason?: string }) => api.post(endpoints.orderRefund(id), data),
+  refund: (id: string, data: { amount?: number; reason?: string }) =>
+    api.post(endpoints.orderRefund(id), data),
   remove: (id: string) => api.delete(endpoints.order(id)),
-  bulk: (ids: string[], action: 'mark_shipped' | 'cancel') => api.patch(endpoints.orderBulk, { ids, action }),
+  bulk: (ids: string[], action: 'mark_shipped' | 'cancel') =>
+    api.patch(endpoints.orderBulk, { ids, action }),
 };
 
 export const productService = {
@@ -89,7 +92,8 @@ export const productService = {
     files.forEach((file) => form.append('images', file));
     return api.post(endpoints.productImages(id), form);
   },
-  removeImage: (id: string, imageUrl: string) => api.delete(endpoints.productImages(id), { imageUrl }),
+  removeImage: (id: string, imageUrl: string) =>
+    api.delete(endpoints.productImages(id), { imageUrl }),
 };
 
 export const customerService = {
@@ -120,7 +124,8 @@ export const analyticsService = {
 export const notificationService = {
   settings: () => api.get(endpoints.notifications.settings),
   updateAll: (data: any) => api.put(endpoints.notifications.settings, data),
-  updateEvent: (eventType: string, data: any) => api.patch(endpoints.notifications.event(eventType), data),
+  updateEvent: (eventType: string, data: any) =>
+    api.patch(endpoints.notifications.event(eventType), data),
   history: (query?: Query) => api.get(withQuery(endpoints.notifications.history, query)),
   readAll: () => api.patch(endpoints.notifications.readAll),
   read: (id: string) => api.patch(endpoints.notifications.read(id)),

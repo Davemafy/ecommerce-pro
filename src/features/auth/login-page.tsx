@@ -22,7 +22,9 @@ export function LoginPage() {
     staleTime: 30_000,
     retry: 1,
   });
-  const setupStatus = setupStatusQuery.data ? unwrapData<{ exists?: boolean }>(setupStatusQuery.data) : null;
+  const setupStatus = setupStatusQuery.data
+    ? unwrapData<{ exists?: boolean }>(setupStatusQuery.data)
+    : null;
 
   if (isAuthenticated()) return <Navigate to={target} replace />;
   if (setupStatus?.exists === false) return <Navigate to="/setup" replace />;
@@ -60,8 +62,13 @@ export function LoginPage() {
     <main className="login-page">
       <section className="login-card">
         <div className="login-brand">
-          <span><Store /></span>
-          <div><strong>CommercePro</strong><small>Enterprise Admin</small></div>
+          <span>
+            <Store />
+          </span>
+          <div>
+            <strong>CommercePro</strong>
+            <small>Enterprise Admin</small>
+          </div>
         </div>
         <div className="login-copy">
           <h1>Welcome back</h1>
@@ -72,22 +79,53 @@ export function LoginPage() {
             Email address
             <div className="login-field">
               <Mail />
-              <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Enter admin email" autoComplete="email" required autoFocus />
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="Enter admin email"
+                autoComplete="email"
+                required
+                autoFocus
+              />
             </div>
           </label>
           <label>
             Password
             <div className="login-field">
               <LockKeyhole />
-              <input type={showPassword ? 'text' : 'password'} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your password" autoComplete="current-password" required />
-              <button type="button" className="login-eye" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Hide password' : 'Show password'}>{showPassword ? <EyeOff /> : <Eye />}</button>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="Enter your password"
+                autoComplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                className="login-eye"
+                onClick={() => setShowPassword((value) => !value)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff /> : <Eye />}
+              </button>
             </div>
           </label>
           {error && <p className="form-error login-error">{error}</p>}
           <div className="login-options">
-            <label><input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} /> Remember this browser</label>
+            <label>
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(event) => setRemember(event.target.checked)}
+              />{' '}
+              Remember this browser
+            </label>
           </div>
-          <button className="primary login-submit" type="submit" disabled={submitting}>{submitting ? 'Signing in…' : 'Sign in'}</button>
+          <button className="primary login-submit" type="submit" disabled={submitting}>
+            {submitting ? 'Signing in…' : 'Sign in'}
+          </button>
         </form>
         <p className="login-help">Use your store administrator credentials.</p>
       </section>

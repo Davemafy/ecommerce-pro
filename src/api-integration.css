@@ -95,7 +95,7 @@ select:disabled {
 }
 
 .login-submit:disabled {
-  opacity: .7;
+  opacity: 0.7;
 }
 
 .status-chip.out-of-stock,
@@ -149,7 +149,6 @@ select:disabled {
   }
 }
 
-
 /* API-backed empty/fallback states */
 .order-customer-avatar {
   width: 48px;
@@ -164,9 +163,16 @@ select:disabled {
   font-size: 13px;
   font-weight: 700;
 }
-.order-customer-avatar svg { width: 20px; height: 20px; }
-.order-timeline-empty { margin: 0; color: #777587; font-size: 13px; line-height: 20px; }
-
+.order-customer-avatar svg {
+  width: 20px;
+  height: 20px;
+}
+.order-timeline-empty {
+  margin: 0;
+  color: #777587;
+  font-size: 13px;
+  line-height: 20px;
+}
 
 /* Regression audit: real-data fallbacks and first-run setup */
 .admin-avatar-fallback,
@@ -181,11 +187,22 @@ select:disabled {
   font-weight: 700;
   line-height: 1;
 }
-.avatar-menu-trigger .admin-avatar-fallback { width: 32px; height: 32px; }
-.figma-profile-fallback { width: 32px !important; height: 32px !important; flex: 0 0 32px; }
+.avatar-menu-trigger .admin-avatar-fallback {
+  width: 32px;
+  height: 32px;
+}
+.figma-profile-fallback {
+  width: 32px !important;
+  height: 32px !important;
+  flex: 0 0 32px;
+}
 
-.setup-card { width: min(440px, calc(100vw - 32px)); }
-.setup-card .login-form { gap: 14px; }
+.setup-card {
+  width: min(440px, calc(100vw - 32px));
+}
+.setup-card .login-form {
+  gap: 14px;
+}
 .setup-note {
   margin: 4px 0 0;
   color: #777587;
@@ -203,8 +220,12 @@ select:disabled {
   color: #b42318;
   font-size: 13px;
 }
-.setup-status-error p { margin: 0; }
-.setup-status-error button { justify-self: start; }
+.setup-status-error p {
+  margin: 0;
+}
+.setup-status-error button {
+  justify-self: start;
+}
 
 .status-chip.failed {
   background: #fef3f2;
@@ -295,9 +316,10 @@ select:disabled {
 }
 
 @media (max-width: 560px) {
-  .settings-permission-grid { grid-template-columns: 1fr; }
+  .settings-permission-grid {
+    grid-template-columns: 1fr;
+  }
 }
-
 
 /* Team settings layout */
 .settings-panel > header {

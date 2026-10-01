@@ -1,6 +1,10 @@
 /* Final mobile corrections kept separate from the legacy fidelity sheet. */
 @media (max-width: 720px) {
-  html, body, #root { min-height: 100%; }
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
 
   .content {
     min-height: 100dvh;
@@ -23,7 +27,7 @@
   .figma-page-heading h1 {
     font-size: 28px !important;
     line-height: 34px !important;
-    letter-spacing: -.4px;
+    letter-spacing: -0.4px;
   }
 
   .figma-page-heading p {

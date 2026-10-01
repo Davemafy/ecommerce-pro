@@ -12,10 +12,7 @@ export function ToastProvider({ children }) {
   const toast = (message, type = 'success') => {
     const id = crypto.randomUUID();
     setToasts((current) => [...current, { id, message, type }]);
-    window.setTimeout(
-      () => setToasts((current) => current.filter((item) => item.id !== id)),
-      3200
-    );
+    window.setTimeout(() => setToasts((current) => current.filter((item) => item.id !== id)), 3200);
   };
 
   return (
@@ -45,7 +42,21 @@ export function useToast() {
   return context;
 }
 
-export function Modal({ open, title, description, children, onClose, footer }: { open: boolean; title: string; description?: string; children: React.ReactNode; onClose: () => void; footer?: React.ReactNode }) {
+export function Modal({
+  open,
+  title,
+  description,
+  children,
+  onClose,
+  footer,
+}: {
+  open: boolean;
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+  onClose: () => void;
+  footer?: React.ReactNode;
+}) {
   const titleId = useId();
   const descriptionId = useId();
   const dialogRef = useRef<HTMLElement>(null);
@@ -56,7 +67,9 @@ export function Modal({ open, title, description, children, onClose, footer }: {
     if (!open) return;
     const previous = document.activeElement as HTMLElement | null;
     const timer = window.setTimeout(() => {
-      const firstField = dialogRef.current?.querySelector<HTMLElement>('.modal-body input, .modal-body select, .modal-body textarea');
+      const firstField = dialogRef.current?.querySelector<HTMLElement>(
+        '.modal-body input, .modal-body select, .modal-body textarea'
+      );
       (firstField ?? dialogRef.current)?.focus();
     }, 0);
     const onKeyDown = (event: KeyboardEvent) => {
@@ -107,7 +120,9 @@ export function Modal({ open, title, description, children, onClose, footer }: {
             <h2 id={titleId}>{title}</h2>
             {description && <p id={descriptionId}>{description}</p>}
           </div>
-          <button className="icon-button modal-close" aria-label="Close dialog" onClick={onClose}><X /></button>
+          <button className="icon-button modal-close" aria-label="Close dialog" onClick={onClose}>
+            <X />
+          </button>
         </header>
         <div className="modal-body">{children}</div>
         {footer && <footer className="modal-footer">{footer}</footer>}
@@ -117,7 +132,15 @@ export function Modal({ open, title, description, children, onClose, footer }: {
   );
 }
 
-export function ConfirmDialog({ open, title, description, onClose, onConfirm, confirmLabel = 'Confirm', danger = false }) {
+export function ConfirmDialog({
+  open,
+  title,
+  description,
+  onClose,
+  onConfirm,
+  confirmLabel = 'Confirm',
+  danger = false,
+}) {
   return (
     <Modal
       open={open}
@@ -127,11 +150,15 @@ export function ConfirmDialog({ open, title, description, onClose, onConfirm, co
       footer={
         <>
           <button onClick={onClose}>Cancel</button>
-          <button className={danger ? 'danger-button' : 'primary'} onClick={onConfirm}>{confirmLabel}</button>
+          <button className={danger ? 'danger-button' : 'primary'} onClick={onConfirm}>
+            {confirmLabel}
+          </button>
         </>
       }
     >
-      <p className="confirm-dialog-copy">{danger ? 'This action cannot be undone.' : 'Please review the details before continuing.'}</p>
+      <p className="confirm-dialog-copy">
+        {danger ? 'This action cannot be undone.' : 'Please review the details before continuing.'}
+      </p>
     </Modal>
   );
 }

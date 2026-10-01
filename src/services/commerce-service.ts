@@ -104,7 +104,14 @@ export function normalizeCustomer(raw: any) {
     name: raw?.name || 'Unnamed customer',
     email: raw?.email || '',
     phone: raw?.phone || '',
-    status: raw?.status === 'blocked' ? 'Blocked' : raw?.status === 'active' ? 'Active' : raw?.status ? titleCase(raw.status) : 'Unknown',
+    status:
+      raw?.status === 'blocked'
+        ? 'Blocked'
+        : raw?.status === 'active'
+          ? 'Active'
+          : raw?.status
+            ? titleCase(raw.status)
+            : 'Unknown',
     addresses,
     address: addressText(addresses[0] || raw?.address),
     totalOrders: raw?.totalOrders == null ? null : Number(raw.totalOrders),
@@ -180,7 +187,7 @@ async function optional<T>(promise: Promise<T>, fallback: T): Promise<T> {
 
 async function loadAll(
   fetchPage: (page: number, limit: number) => Promise<any>,
-  candidates: string[],
+  candidates: string[]
 ) {
   const limit = 100;
   const all: any[] = [];
@@ -204,7 +211,12 @@ async function loadAll(
     const meta = response?.meta || data?.meta || {};
     const totalPages = Number(meta.totalPages || 0);
 
-    if ((totalPages > 0 && page >= totalPages) || (totalPages <= 0 && items.length < limit) || items.length === 0 || added === 0) {
+    if (
+      (totalPages > 0 && page >= totalPages) ||
+      (totalPages <= 0 && items.length < limit) ||
+      items.length === 0 ||
+      added === 0
+    ) {
       break;
     }
   }
@@ -239,7 +251,8 @@ function updateProductPayload(patch: any) {
   if (patch.sku !== undefined) payload.sku = patch.sku;
   if (patch.category !== undefined) payload.category = patch.category;
   if (patch.price !== undefined) payload.price = Number(patch.price);
-  if (patch.compareAtPrice !== undefined) payload.compareAtPrice = patch.compareAtPrice == null ? null : Number(patch.compareAtPrice);
+  if (patch.compareAtPrice !== undefined)
+    payload.compareAtPrice = patch.compareAtPrice == null ? null : Number(patch.compareAtPrice);
   if (patch.stock !== undefined) payload.stock = Number(patch.stock);
   if (patch.tags !== undefined) payload.tags = patch.tags;
   if (patch.variants !== undefined) payload.variants = patch.variants;
@@ -260,27 +273,34 @@ export const commerceService = {
   async getData() {
     const [products, customers, orders] = await Promise.all([
       loadAll(
-        (page, limit) => productService.list({ page, limit, sortBy: 'createdAt', sortOrder: 'desc' }),
-        ['products'],
+        (page, limit) =>
+          productService.list({ page, limit, sortBy: 'createdAt', sortOrder: 'desc' }),
+        ['products']
       ),
       loadAll(
-        (page, limit) => customerService.list({ page, limit, sortBy: 'createdAt', sortOrder: 'desc' }),
-        ['customers'],
+        (page, limit) =>
+          customerService.list({ page, limit, sortBy: 'createdAt', sortOrder: 'desc' }),
+        ['customers']
       ),
       loadAll(
         (page, limit) => orderService.list({ page, limit, sortBy: 'createdAt', sortOrder: 'desc' }),
-        ['orders'],
+        ['orders']
       ),
     ]);
 
-    const [storeResponse, paymentsResponse, notificationsResponse, dashboardResponse, analyticsResponse] =
-      await Promise.all([
-        optional(settingsService.getStore(), null),
-        optional(settingsService.getPayments(), null),
-        optional(notificationService.settings(), null),
-        optional(dashboardService.getOverview('30d'), null),
-        optional(analyticsService.overview({ range: '30d' }), null),
-      ]);
+    const [
+      storeResponse,
+      paymentsResponse,
+      notificationsResponse,
+      dashboardResponse,
+      analyticsResponse,
+    ] = await Promise.all([
+      optional(settingsService.getStore(), null),
+      optional(settingsService.getPayments(), null),
+      optional(notificationService.settings(), null),
+      optional(dashboardService.getOverview('30d'), null),
+      optional(analyticsService.overview({ range: '30d' }), null),
+    ]);
 
     return {
       products: products.map(normalizeProduct),
@@ -290,8 +310,12 @@ export const commerceService = {
       analytics: analyticsResponse ? unwrapData(analyticsResponse) : null,
       settings: {
         ...structuredClone(emptySettings),
-        general: storeResponse ? normalizeStore(storeResponse) : structuredClone(emptySettings.general),
-        payments: paymentsResponse ? normalizePayments(paymentsResponse) : structuredClone(emptySettings.payments),
+        general: storeResponse
+          ? normalizeStore(storeResponse)
+          : structuredClone(emptySettings.general),
+        payments: paymentsResponse
+          ? normalizePayments(paymentsResponse)
+          : structuredClone(emptySettings.payments),
         notifications: notificationsResponse
           ? normalizeNotifications(notificationsResponse)
           : structuredClone(emptySettings.notifications),
@@ -320,8 +344,16 @@ export const commerceService = {
     return {
       ...customer,
       detailOrders,
-      refunds: Array.isArray(raw.refunds) ? raw.refunds : Array.isArray(profile.refunds) ? profile.refunds : [],
-      notes: Array.isArray(raw.notes) ? raw.notes : Array.isArray(profile.notes) ? profile.notes : [],
+      refunds: Array.isArray(raw.refunds)
+        ? raw.refunds
+        : Array.isArray(profile.refunds)
+          ? profile.refunds
+          : [],
+      notes: Array.isArray(raw.notes)
+        ? raw.notes
+        : Array.isArray(profile.notes)
+          ? profile.notes
+          : [],
     };
   },
 
@@ -365,16 +397,17 @@ export const commerceService = {
 
   createOrder(order: any, data: any) {
     const customer = data.customers.find(
-      (item: any) => item.email.toLowerCase() === String(order.email).trim().toLowerCase(),
+      (item: any) => item.email.toLowerCase() === String(order.email).trim().toLowerCase()
     );
     const product = data.products.find(
-      (item: any) => item.sku.toLowerCase() === String(order.sku).trim().toLowerCase(),
+      (item: any) => item.sku.toLowerCase() === String(order.sku).trim().toLowerCase()
     );
     const quantity = Number(order.quantity);
 
     if (!customer) throw new Error('Choose an existing customer email.');
     if (!product) throw new Error('Choose an existing product SKU.');
-    if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Quantity must be a whole number of at least 1.');
+    if (!Number.isInteger(quantity) || quantity < 1)
+      throw new Error('Quantity must be a whole number of at least 1.');
     if (product.stock < quantity) throw new Error('Not enough stock is available.');
 
     const subtotal = product.price * quantity;
@@ -413,11 +446,15 @@ export const commerceService = {
       Cancelled: 'cancelled',
       Refunded: 'refunded',
     };
-    return orderService.updateStatus(apiId, { fulfillmentStatus: map[status] || status.toLowerCase() });
+    return orderService.updateStatus(apiId, {
+      fulfillmentStatus: map[status] || status.toLowerCase(),
+    });
   },
 
   async adjustInventory(sku: string, amount: number, note: string | undefined, data: any) {
-    const product = data.products.find((item: any) => item.sku.toLowerCase() === String(sku).trim().toLowerCase());
+    const product = data.products.find(
+      (item: any) => item.sku.toLowerCase() === String(sku).trim().toLowerCase()
+    );
     if (!product) throw new Error('Product not found.');
     return inventoryService.adjust(product.apiId || product.id, Number(amount), 'adjustment', note);
   },

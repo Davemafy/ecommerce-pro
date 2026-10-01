@@ -16,7 +16,9 @@ export function RouteErrorPage() {
   return (
     <main className="route-error-page" role="alert">
       <div className="route-error-card">
-        <span className="route-error-icon"><AlertTriangle /></span>
+        <span className="route-error-icon">
+          <AlertTriangle />
+        </span>
         <div>
           <p className="route-error-eyebrow">COMMERCEPRO</p>
           <h1>{title}</h1>

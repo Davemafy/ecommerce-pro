@@ -6,7 +6,10 @@ const SESSION_KEY = 'commercepro-api-authenticated-v1';
 
 export function isAuthenticated() {
   if (typeof window === 'undefined') return false;
-  return window.sessionStorage.getItem(SESSION_KEY) === '1' || window.localStorage.getItem(SESSION_KEY) === '1';
+  return (
+    window.sessionStorage.getItem(SESSION_KEY) === '1' ||
+    window.localStorage.getItem(SESSION_KEY) === '1'
+  );
 }
 
 export function startSession(remember = false) {
@@ -39,7 +42,9 @@ export async function logout() {
 export function RequireAuth({ children }: { children: ReactNode }) {
   const location = useLocation();
   if (!isAuthenticated()) {
-    return <Navigate to="/login" replace state={{ from: `${location.pathname}${location.search}` }} />;
+    return (
+      <Navigate to="/login" replace state={{ from: `${location.pathname}${location.search}` }} />
+    );
   }
   return <>{children}</>;
 }

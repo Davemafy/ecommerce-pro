@@ -19,19 +19,49 @@ import { QaPage } from '../features/qa/qa-page';
 export const router = createBrowserRouter([
   { path: '/setup', element: <SetupPage />, errorElement: <RouteErrorPage /> },
   { path: '/login', element: <LoginPage />, errorElement: <RouteErrorPage /> },
-  { path: '/', element: <RequireAuth><App /></RequireAuth>, errorElement: <RouteErrorPage />, children: [
-    { index: true, element: <DashboardPage /> },
-    { path: 'orders', children: [{ index:true, element:<OrdersPage/> },{ path:':orderId', element:<OrderDetailPage/> }] },
-    { path: 'products', children: [{ index:true, element:<ProductsPage/> },{ path:':productId', element:<ProductDetailPage/> }] },
-    { path: 'customers', children: [{ index:true, element:<CustomersPage/> },{ path:':customerId', element:<CustomerDetailPage/> }] },
-    { path:'qa', element:<QaPage/> },
-    { path:'inventory', element:<InventoryPage/> },
-    { path:'reports', element:<ReportsPage/> },
-    { path:'settings', children:[
-      { index:true, element:<Navigate to="/settings/general" replace/> },
-      { path:'profile', element:<Navigate to="/settings/general" replace/> },
-      { path:':section', element:<SettingsPage/> },
-    ] },
-    { path:'*', element:<Navigate to="/" replace/> },
-  ]},
+  {
+    path: '/',
+    element: (
+      <RequireAuth>
+        <App />
+      </RequireAuth>
+    ),
+    errorElement: <RouteErrorPage />,
+    children: [
+      { index: true, element: <DashboardPage /> },
+      {
+        path: 'orders',
+        children: [
+          { index: true, element: <OrdersPage /> },
+          { path: ':orderId', element: <OrderDetailPage /> },
+        ],
+      },
+      {
+        path: 'products',
+        children: [
+          { index: true, element: <ProductsPage /> },
+          { path: ':productId', element: <ProductDetailPage /> },
+        ],
+      },
+      {
+        path: 'customers',
+        children: [
+          { index: true, element: <CustomersPage /> },
+          { path: ':customerId', element: <CustomerDetailPage /> },
+        ],
+      },
+      { path: 'qa', element: <QaPage /> },
+      { path: 'inventory', element: <InventoryPage /> },
+      { path: 'reports', element: <ReportsPage /> },
+      {
+        path: 'settings',
+        children: [
+          { index: true, element: <Navigate to="/settings/general" replace /> },
+          { path: 'profile', element: <Navigate to="/settings/general" replace /> },
+          { path: ':section', element: <SettingsPage /> },
+        ],
+      },
+      { path: '*', element: <Navigate to="/" replace /> },
+    ],
+  },
 ]);

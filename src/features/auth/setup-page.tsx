@@ -27,7 +27,8 @@ export function SetupPage() {
   const status = statusQuery.data ? unwrapData<{ exists?: boolean }>(statusQuery.data) : null;
 
   if (isAuthenticated()) return <Navigate to="/" replace />;
-  if (!created && statusQuery.isSuccess && status?.exists === true) return <Navigate to="/login" replace />;
+  if (!created && statusQuery.isSuccess && status?.exists === true)
+    return <Navigate to="/login" replace />;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -76,8 +77,13 @@ export function SetupPage() {
     <main className="login-page">
       <section className="login-card setup-card">
         <div className="login-brand">
-          <span><Store /></span>
-          <div><strong>CommercePro</strong><small>Enterprise Admin</small></div>
+          <span>
+            <Store />
+          </span>
+          <div>
+            <strong>CommercePro</strong>
+            <small>Enterprise Admin</small>
+          </div>
         </div>
         <div className="login-copy">
           <h1>Set up the store owner</h1>
@@ -89,7 +95,9 @@ export function SetupPage() {
         ) : statusQuery.isError ? (
           <div className="setup-status-error">
             <p>Could not confirm the store setup status.</p>
-            <button type="button" onClick={() => statusQuery.refetch()}>Try again</button>
+            <button type="button" onClick={() => statusQuery.refetch()}>
+              Try again
+            </button>
           </div>
         ) : (
           <form onSubmit={submit} className="login-form">
@@ -97,33 +105,66 @@ export function SetupPage() {
               Name
               <div className="login-field">
                 <UserRound />
-                <input value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" required autoFocus />
+                <input
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  autoComplete="name"
+                  required
+                  autoFocus
+                />
               </div>
             </label>
             <label>
               Email address
               <div className="login-field">
                 <Mail />
-                <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  autoComplete="email"
+                  required
+                />
               </div>
             </label>
             <label>
               Password
               <div className="login-field">
                 <LockKeyhole />
-                <input type={showPassword ? 'text' : 'password'} value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" required />
-                <button type="button" className="login-eye" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Hide password' : 'Show password'}>{showPassword ? <EyeOff /> : <Eye />}</button>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  autoComplete="new-password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="login-eye"
+                  onClick={() => setShowPassword((value) => !value)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff /> : <Eye />}
+                </button>
               </div>
             </label>
             <label>
               Confirm password
               <div className="login-field">
                 <LockKeyhole />
-                <input type={showPassword ? 'text' : 'password'} value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} autoComplete="new-password" required />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  autoComplete="new-password"
+                  required
+                />
               </div>
             </label>
             {error && <p className="form-error login-error">{error}</p>}
-            <button className="primary login-submit" type="submit" disabled={submitting}>{submitting ? 'Creating account…' : 'Create owner account'}</button>
+            <button className="primary login-submit" type="submit" disabled={submitting}>
+              {submitting ? 'Creating account…' : 'Create owner account'}
+            </button>
             <p className="setup-note">This setup closes after the first super admin is created.</p>
           </form>
         )}

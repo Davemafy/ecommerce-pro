@@ -17,7 +17,10 @@ export class ApiError extends Error {
   status: number;
   data: unknown;
 
-  constructor(message: string, { status = 0, data = null }: { status?: number; data?: unknown } = {}) {
+  constructor(
+    message: string,
+    { status = 0, data = null }: { status?: number; data?: unknown } = {}
+  ) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
@@ -73,7 +76,10 @@ async function refreshSession() {
   return refreshPromise;
 }
 
-export async function request(path: string, { method = 'GET', body, headers = {}, signal, retryAuth = true }: RequestOptions = {}) {
+export async function request(
+  path: string,
+  { method = 'GET', body, headers = {}, signal, retryAuth = true }: RequestOptions = {}
+) {
   if (!BASE_URL) throw new ApiError('API base URL is not configured.');
 
   const controller = new AbortController();
@@ -81,7 +87,9 @@ export async function request(path: string, { method = 'GET', body, headers = {}
   const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
   const requestHeaders: Record<string, string> = {
     Accept: 'application/json',
-    ...(!isFormData && body !== undefined && body !== null ? { 'Content-Type': 'application/json' } : {}),
+    ...(!isFormData && body !== undefined && body !== null
+      ? { 'Content-Type': 'application/json' }
+      : {}),
     ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
     ...headers,
   };
@@ -100,7 +108,12 @@ export async function request(path: string, { method = 'GET', body, headers = {}
             : JSON.stringify(body),
     });
 
-    if (response.status === 401 && retryAuth && !path.includes('/auth/login') && !path.includes('/auth/refresh')) {
+    if (
+      response.status === 401 &&
+      retryAuth &&
+      !path.includes('/auth/login') &&
+      !path.includes('/auth/refresh')
+    ) {
       const refreshed = await refreshSession();
       if (refreshed) return request(path, { method, body, headers, signal, retryAuth: false });
     }
@@ -126,8 +139,12 @@ export async function request(path: string, { method = 'GET', body, headers = {}
 
 export const api = {
   get: (path: string, options: RequestOptions = {}) => request(path, options),
-  post: (path: string, body?: RequestBody, options: RequestOptions = {}) => request(path, { ...options, method: 'POST', body }),
-  patch: (path: string, body?: RequestBody, options: RequestOptions = {}) => request(path, { ...options, method: 'PATCH', body }),
-  put: (path: string, body?: RequestBody, options: RequestOptions = {}) => request(path, { ...options, method: 'PUT', body }),
-  delete: (path: string, body?: RequestBody, options: RequestOptions = {}) => request(path, { ...options, method: 'DELETE', body }),
+  post: (path: string, body?: RequestBody, options: RequestOptions = {}) =>
+    request(path, { ...options, method: 'POST', body }),
+  patch: (path: string, body?: RequestBody, options: RequestOptions = {}) =>
+    request(path, { ...options, method: 'PATCH', body }),
+  put: (path: string, body?: RequestBody, options: RequestOptions = {}) =>
+    request(path, { ...options, method: 'PUT', body }),
+  delete: (path: string, body?: RequestBody, options: RequestOptions = {}) =>
+    request(path, { ...options, method: 'DELETE', body }),
 };

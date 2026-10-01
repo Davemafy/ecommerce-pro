@@ -13,11 +13,15 @@ describe('analytics date ranges', () => {
   ];
 
   it('anchors Last 7 Days to the current date', () => {
-    expect(filterOrdersByRange(orders, 'Last 7 Days', anchor).map((order) => order.total)).toEqual([100, 50]);
+    expect(filterOrdersByRange(orders, 'Last 7 Days', anchor).map((order) => order.total)).toEqual([
+      100, 50,
+    ]);
   });
 
   it('keeps This Year inside the current calendar year', () => {
-    expect(filterOrdersByRange(orders, 'This Year', anchor).map((order) => order.total)).toEqual([100, 50, 25, 10]);
+    expect(filterOrdersByRange(orders, 'This Year', anchor).map((order) => order.total)).toEqual([
+      100, 50, 25, 10,
+    ]);
   });
 
   it('counts timestamped orders in the revenue series', () => {

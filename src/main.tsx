@@ -34,5 +34,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         </StoreProvider>
       </QueryClientProvider>
     </Provider>
-  </React.StrictMode>,
+  </React.StrictMode>
 );

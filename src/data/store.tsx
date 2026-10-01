@@ -67,8 +67,10 @@ export function useStore() {
       execute(() => commerceService.adjustInventory(sku, amount, note, data)),
     updateSettings: (section: string, patch: any) => {
       if (section === 'general') return execute(() => commerceService.updateGeneralSettings(patch));
-      if (section === 'payments') return execute(() => commerceService.updatePayments(patch.gateways || []));
-      if (section === 'notifications') return execute(() => commerceService.updateNotificationSettings(patch));
+      if (section === 'payments')
+        return execute(() => commerceService.updatePayments(patch.gateways || []));
+      if (section === 'notifications')
+        return execute(() => commerceService.updateNotificationSettings(patch));
       return Promise.resolve();
     },
     uploadStoreLogo: (file: File) => execute(() => commerceService.uploadStoreLogo(file)),
