@@ -10,44 +10,60 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
 export function useStore() {
   const queryClient = useQueryClient();
-  const query = useQuery({ queryKey: DATA_KEY, queryFn: commerceService.getData, staleTime: Infinity });
-  const mutate = useMutation({
-    mutationFn: commerceService.replaceData,
-    onSuccess: (next) => queryClient.setQueryData(DATA_KEY, next),
+  const query = useQuery({
+    queryKey: DATA_KEY,
+    queryFn: commerceService.getData,
+    staleTime: 30_000,
+    retry: 1,
   });
+
+  const command = useMutation({
+    mutationFn: (operation: () => Promise<any>) => operation(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: DATA_KEY });
+    },
+  });
+
   const data = query.data ?? commerceService.referenceData;
-  const commit = (updater: any) => {
-    const next = typeof updater === 'function' ? updater(data) : updater;
-    queryClient.setQueryData(DATA_KEY, next);
-    mutate.mutate(next);
+  const execute = (operation: () => Promise<any>) => command.mutateAsync(operation);
+
+  const productApiId = (id: string) => {
+    const product = data.products.find((item: any) => item.id === id || item.apiId === id);
+    return product?.apiId || id;
   };
+
+  const customerApiId = (id: string) => {
+    const customer = data.customers.find((item: any) => item.id === id || item.apiId === id);
+    return customer?.apiId || id;
+  };
+
   return {
     data,
-    addProduct(product: any) { commit((d: any) => ({ ...d, products: [{ ...product, id: product.sku }, ...d.products] })); },
-    updateProduct(id: string, patch: any) { commit((d: any) => ({ ...d, products: d.products.map((p: any) => p.id === id ? { ...p, ...patch } : p) })); },
-    archiveProduct(id: string) { commit((d: any) => ({ ...d, products: d.products.map((p: any) => p.id === id ? { ...p, status: 'Archived' } : p) })); },
-    addCustomer(customer: any) { commit((d: any) => ({ ...d, customers: [{ ...customer, id: crypto.randomUUID(), status: 'Active' }, ...d.customers] })); },
-    createOrder(order: any) {
-      const customer = data.customers.find((c: any) => c.email === order.email);
-      const product = data.products.find((p: any) => p.sku === order.sku);
-      const qty = Number(order.quantity);
-      if (!customer) throw new Error('Choose an existing customer email.');
-      if (!product) throw new Error('Choose an existing product SKU.');
-      if (!Number.isFinite(qty) || qty < 1) throw new Error('Quantity must be at least 1.');
-      if (product.stock < qty) throw new Error('Not enough stock is available.');
-      const created = { id: `ORD-${1009 + data.orders.length}`, customerId: customer.id, customer: customer.name, date: new Date().toISOString().slice(0, 10), total: product.price * qty, status: 'Pending', sku: product.sku, quantity: qty };
-      commit((d: any) => ({ ...d, orders: [created, ...d.orders], products: d.products.map((p: any) => p.id === product.id ? { ...p, stock: p.stock - qty } : p) }));
+    addProduct: (product: any) => execute(() => commerceService.createProduct(product)),
+    updateProduct: (id: string, patch: any) =>
+      execute(() => commerceService.updateProduct(productApiId(id), patch)),
+    archiveProduct: (id: string) =>
+      execute(() => commerceService.setProductStatus(productApiId(id), 'draft')),
+    addCustomer: (customer: any) => execute(() => commerceService.createCustomer(customer)),
+    updateCustomer: (id: string, patch: any) =>
+      execute(() => commerceService.updateCustomer(customerApiId(id), patch)),
+    addCustomerNote: (id: string, note: string) =>
+      execute(() => commerceService.addCustomerNote(customerApiId(id), note)),
+    createOrder: (order: any) => execute(() => commerceService.createOrder(order, data)),
+    updateOrderStatus: (id: string, status: string) =>
+      execute(() => commerceService.updateOrderStatus(id, status, data)),
+    adjustInventory: (sku: string, amount: number, note?: string) =>
+      execute(() => commerceService.adjustInventory(sku, amount, note, data)),
+    updateSettings: (section: string, patch: any) => {
+      if (section === 'general') return execute(() => commerceService.updateGeneralSettings(patch));
+      if (section === 'payments') return execute(() => commerceService.updatePayments(patch.gateways || []));
+      if (section === 'notifications') return execute(() => commerceService.updateNotificationSettings(patch));
+      return Promise.resolve();
     },
-    updateOrderStatus(id: string, status: 'Pending' | 'Processing' | 'Completed') { commit((d: any) => ({ ...d, orders: d.orders.map((order: any) => order.id === id ? { ...order, status } : order) })); },
-    adjustInventory(sku: string, amount: number) { commit((d: any) => ({ ...d, products: d.products.map((p: any) => p.sku === sku ? { ...p, stock: Math.max(0, p.stock + Number(amount)) } : p) })); },
-    updateSettings(section: string, patch: any) { commit((d: any) => ({ ...d, settings: { ...d.settings, [section]: { ...d.settings[section], ...patch } } })); },
-    async resetDemoData() {
-      const next = await commerceService.reset();
-      queryClient.setQueryData(DATA_KEY, next);
-    },
+    uploadStoreLogo: (file: File) => execute(() => commerceService.uploadStoreLogo(file)),
     isLoading: query.isLoading,
     error: query.error,
     reload: query.refetch,
-    isSaving: mutate.isPending,
+    isSaving: command.isPending,
   };
 }

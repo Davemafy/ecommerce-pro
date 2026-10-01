@@ -1,32 +1,42 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AlertTriangle, Menu, RefreshCw } from 'lucide-react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { ApiError } from '../api/client';
 import { Sidebar } from '../components/layout/sidebar';
 import { TopBar } from '../components/layout/top-bar';
 import { useStore } from '../data/store';
+import { endSession } from '../features/auth/auth-session';
 
 export function App() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const location=useLocation();
-  const {isLoading,error,reload}=useStore();
-  const isDashboard=location.pathname==='/';
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { isLoading, error, reload } = useStore();
+  const isDashboard = location.pathname === '/';
+
+  useEffect(() => {
+    if (error instanceof ApiError && error.status === 401) {
+      endSession();
+      navigate('/login', { replace: true, state: { from: `${location.pathname}${location.search}` } });
+    }
+  }, [error, location.pathname, location.search, navigate]);
 
   return (
-    <div className={isDashboard?'app-shell dashboard-shell':'app-shell'}>
+    <div className={isDashboard ? 'app-shell dashboard-shell' : 'app-shell'}>
       <Sidebar mobileOpen={mobileNavOpen} onNavigate={() => setMobileNavOpen(false)} />
       {mobileNavOpen && <button className="mobile-nav-backdrop" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)} />}
       <div className="content">
-        {isDashboard?<button className="dashboard-mobile-menu-trigger" aria-label="Open navigation" onClick={()=>setMobileNavOpen(true)}><Menu/></button>:<TopBar onMenu={() => setMobileNavOpen(true)} />}
-        {isLoading?<AppLoadingState/>:error?<AppDataError onRetry={()=>reload()}/>:<Outlet />}
+        {isDashboard ? <button className="dashboard-mobile-menu-trigger" aria-label="Open navigation" onClick={() => setMobileNavOpen(true)}><Menu /></button> : <TopBar onMenu={() => setMobileNavOpen(true)} />}
+        {isLoading ? <AppLoadingState /> : error ? <AppDataError onRetry={() => reload()} /> : <Outlet />}
       </div>
     </div>
   );
 }
 
-function AppLoadingState(){
-  return <main className="app-state-page" aria-label="Loading dashboard data"><div className="app-state-heading"><span className="skeleton-bone"/><span className="skeleton-bone short"/></div><div className="app-state-grid">{Array.from({length:4},(_,index)=><span className="skeleton-bone app-state-card" key={index}/>)}</div><span className="skeleton-bone app-state-panel"/></main>;
+function AppLoadingState() {
+  return <main className="app-state-page" aria-label="Loading store data"><div className="app-state-heading"><span className="skeleton-bone" /><span className="skeleton-bone short" /></div><div className="app-state-grid">{Array.from({ length: 4 }, (_, index) => <span className="skeleton-bone app-state-card" key={index} />)}</div><span className="skeleton-bone app-state-panel" /></main>;
 }
 
-function AppDataError({onRetry}:{onRetry:()=>void}){
-  return <main className="app-state-page"><section className="app-data-error"><span><AlertTriangle/></span><h1>We couldn't load the store data</h1><p>The dashboard is still intact. Retry the data request to continue.</p><button className="primary" onClick={onRetry}><RefreshCw/>Try again</button></section></main>;
+function AppDataError({ onRetry }: { onRetry: () => void }) {
+  return <main className="app-state-page"><section className="app-data-error"><span><AlertTriangle /></span><h1>We couldn't load the store data</h1><p>Check your connection or retry the request.</p><button className="primary" onClick={onRetry}><RefreshCw />Try again</button></section></main>;
 }

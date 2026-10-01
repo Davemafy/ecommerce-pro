@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { authService } from '../../api/services';
 
 const SESSION_KEY = 'commercepro-authenticated';
 
@@ -19,6 +20,20 @@ export function endSession() {
   if (typeof window === 'undefined') return;
   window.sessionStorage.removeItem(SESSION_KEY);
   window.localStorage.removeItem(SESSION_KEY);
+}
+
+export async function login(email: string, password: string, remember = false) {
+  const session = await authService.login({ email, password });
+  startSession(remember);
+  return session;
+}
+
+export async function logout() {
+  try {
+    await authService.logout();
+  } finally {
+    endSession();
+  }
 }
 
 export function RequireAuth({ children }: { children: ReactNode }) {
