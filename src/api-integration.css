@@ -297,3 +297,76 @@ select:disabled {
 @media (max-width: 560px) {
   .settings-permission-grid { grid-template-columns: 1fr; }
 }
+
+
+/* Team settings layout */
+.settings-panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.settings-panel > header > div {
+  flex: 1 1 auto;
+}
+.settings-panel > header > .primary {
+  flex: 0 0 auto;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.settings-team-list .toggle-row {
+  width: 100%;
+  max-width: none;
+  min-height: 68px;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  gap: 18px;
+}
+.settings-team-list .toggle-row > span:first-child {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: grid;
+  gap: 3px;
+}
+.settings-team-list .toggle-row > span:first-child > b,
+.settings-team-list .toggle-row > span:first-child > small {
+  display: block;
+  min-width: 0;
+}
+.settings-team-list .toggle-row > span:first-child > b {
+  color: #191c1e;
+  font-size: 14px;
+  line-height: 20px;
+}
+.settings-team-list .toggle-row > span:first-child > small {
+  overflow: hidden;
+  color: #667085;
+  font-size: 12px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.settings-team-list .settings-protected-account {
+  margin-left: auto;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #f2f4f6;
+  color: #667085 !important;
+}
+
+@media (max-width: 720px) {
+  .settings-panel > header {
+    flex-direction: column;
+  }
+  .settings-panel > header > .primary {
+    align-self: flex-start;
+  }
+  .settings-team-list .toggle-row {
+    align-items: flex-start;
+  }
+  .settings-team-list .toggle-row > span:first-child > small {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
