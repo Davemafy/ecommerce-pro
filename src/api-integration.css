@@ -98,14 +98,38 @@ select:disabled {
   opacity: .7;
 }
 
-.status-chip.out-of-stock {
+.status-chip.out-of-stock,
+.active-badge.out-of-stock {
   background: #fef3f2;
   color: #b42318;
 }
 
-.active-badge.out-of-stock {
+.status-chip.shipped {
+  background: #eef4ff;
+  color: #3538cd;
+}
+
+.status-chip.cancelled,
+.status-chip.refunded {
   background: #fef3f2;
   color: #b42318;
+}
+
+.status-chip.processing {
+  background: #fff7e8;
+  color: #9a6700;
+}
+
+.status-chip.pending,
+.status-chip.unpaid {
+  background: #fff8c5;
+  color: #7d4e00;
+}
+
+.status-chip.completed,
+.status-chip.paid {
+  background: #ecfdf3;
+  color: #067647;
 }
 
 .active-chip.blocked {
