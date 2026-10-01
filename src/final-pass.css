@@ -415,3 +415,31 @@ textarea:focus-visible {
   .sales-chart-area { height: 230px; grid-template-columns: 30px minmax(0,1fr); }
   .sales-card .x-axis { padding-left: 34px !important; }
 }
+
+
+/* Orders table — keep the action column reachable on laptop-width layouts. */
+.orders-page .table-card table { table-layout: fixed; min-width: 760px; }
+.orders-page .table-card th:nth-child(1),
+.orders-page .table-card td:nth-child(1) { width: 25%; }
+.orders-page .table-card th:nth-child(2),
+.orders-page .table-card td:nth-child(2) { width: 18%; }
+.orders-page .table-card th:nth-child(3),
+.orders-page .table-card td:nth-child(3) { width: 12%; }
+.orders-page .table-card th:nth-child(4),
+.orders-page .table-card td:nth-child(4) { width: 10%; }
+.orders-page .table-card th:nth-child(5),
+.orders-page .table-card td:nth-child(5) { width: 12%; }
+.orders-page .table-card th:nth-child(6),
+.orders-page .table-card td:nth-child(6) { width: 13%; }
+.orders-page .table-card th:nth-child(7),
+.orders-page .table-card td:nth-child(7) { width: 10%; }
+.orders-page .table-card td:nth-child(1),
+.orders-page .table-card td:nth-child(2) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 1280px) {
+  .orders-page .table-card th,
+  .orders-page .table-card td { padding-left: 12px; padding-right: 12px; }
+  .orders-page .action-column { width: 88px !important; min-width: 88px !important; }
+}
