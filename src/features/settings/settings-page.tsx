@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ImageIcon, Info, Plus, Trash2 } from 'lucide-react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { authService, unwrapList } from '../../api/services';
+import { authService, notificationService, unwrapList } from '../../api/services';
 import { Modal, useToast } from '../../components/ui/feedback';
 import { FormFields } from '../../components/ui/form-fields';
 import { useStore } from '../../data/store';
@@ -658,7 +658,6 @@ async function updateNotificationPreference(
   enabled: boolean,
   preferences: any[]
 ) {
-  const { notificationService } = await import('../../api/services');
   const current = preferences.find(
     (item: any) => item.eventType === eventType || item.type === eventType
   );
