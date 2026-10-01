@@ -42,7 +42,7 @@ export function InventoryPage() {
   const openAdjustment = (sku: string) => { setForm({ sku, quantity: '', reason: '' }); setError(''); setAdjusting(true); };
 
   const apply = async () => {
-    const product = data.products.find((item: any) => item.sku === form.sku);
+    const product = data.products.find((item: any) => item.sku.toLowerCase() === form.sku.trim().toLowerCase());
     if (!product) {
       setError('Enter a valid product SKU.');
       return;
@@ -58,7 +58,7 @@ export function InventoryPage() {
     }
 
     try {
-      await adjustInventory(form.sku, quantity, form.reason.trim() || undefined);
+      await adjustInventory(product.sku, quantity, form.reason.trim() || undefined);
       closeAdjustment();
       setForm({ sku: '', quantity: '', reason: '' });
       toast('Inventory updated');
@@ -76,12 +76,12 @@ export function InventoryPage() {
     <section className="figma-table-card"><table className="figma-table inventory-table"><thead><tr><th>PRODUCT NAME</th><th>SKU</th><th>CATEGORY</th><th className="number">CURRENT STOCK</th><th className="number">REORDER POINT</th><th>STATUS</th><th className="action-column">ACTIONS</th></tr></thead><tbody>
       {visibleRows.map((product: any) => {
         const threshold = product.lowStockThreshold == null ? null : Number(product.lowStockThreshold);
-        const critical = product.stock === 0;
+        const critical = product.stock <= 0;
         const lowStock = isLowStock(product);
         return <tr key={product.id} className={lowStock ? 'inventory-alert-row' : ''}><td className={lowStock ? 'danger' : ''}><strong>{product.name}</strong></td><td className="mono">{product.sku}</td><td>{product.category}</td><td className={`number ${lowStock ? 'danger' : ''}`}><b>{product.stock}</b></td><td className="number">{threshold == null || !Number.isFinite(threshold) ? '—' : threshold}</td><td><span className={`inventory-status-chip ${critical ? 'critical' : lowStock ? 'low' : 'ok'}`}>{critical ? 'Out of Stock' : lowStock ? 'Low Stock' : 'In Stock'}</span></td><td className="action-column"><button className="bare inventory-action" title="Adjust inventory" aria-label={`Adjust ${product.name} inventory`} onClick={() => openAdjustment(product.sku)}>{lowStock ? <ShoppingCart/> : <MoreVertical/>}</button></td></tr>;
       })}
       {!visibleRows.length && <tr><td colSpan={7}><div className="table-empty-state"><strong>No inventory matches these filters.</strong><span>Try another search or show all inventory.</span></div></td></tr>}
     </tbody></table><footer className="table-footer"><strong>Showing {start} to {end} of {rows.length} products</strong><div><button disabled={currentPage <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>‹</button><span className="pagination-summary">Page {currentPage} of {pageCount}</span><button disabled={currentPage >= pageCount} onClick={() => setPage((value) => Math.min(pageCount, value + 1))}>›</button></div></footer></section>
-    <Modal open={adjusting} title="Adjust inventory" description="Record a stock correction against the live inventory service." onClose={closeAdjustment} footer={<><button onClick={closeAdjustment}>Cancel</button><button className="primary" disabled={!valid || isSaving} onClick={apply}>{isSaving ? 'Applying…' : 'Apply adjustment'}</button></>}><FormFields values={form} onChange={(name, value) => { setError(''); setForm((current) => ({ ...current, [name]: value })); }} fields={[{ name: 'sku', label: 'Product SKU', placeholder: data.products[0]?.sku || 'Enter product SKU', required: true }, { name: 'quantity', label: 'Quantity adjustment', type: 'number', placeholder: 'e.g. 25 or -2', required: true }, { name: 'reason', label: 'Reason', placeholder: 'Restock, damaged item, recount...' }]}/>{error && <p className="form-error">{error}</p>}</Modal>
+    <Modal open={adjusting} title="Adjust inventory" description="Record a stock correction against the live inventory service." onClose={closeAdjustment} footer={<><button onClick={closeAdjustment}>Cancel</button><button className="primary" disabled={!valid || isSaving} onClick={apply}>{isSaving ? 'Applying…' : 'Apply adjustment'}</button></>}><FormFields values={form} onChange={(name, value) => { setError(''); setForm((current) => ({ ...current, [name]: value })); }} fields={[{ name: 'sku', label: 'Product SKU', placeholder: data.products[0]?.sku || 'Enter product SKU', required: true }, { name: 'quantity', label: 'Quantity adjustment', type: 'number', placeholder: 'e.g. 25 or -2', required: true, step: 1, inputMode: 'numeric' }, { name: 'reason', label: 'Reason', placeholder: 'Restock, damaged item, recount...' }]}/>{error && <p className="form-error">{error}</p>}</Modal>
   </main>;
 }

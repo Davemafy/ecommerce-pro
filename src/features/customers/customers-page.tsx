@@ -26,7 +26,7 @@ export function CustomersPage() {
   const currentPage = Math.min(page, pageCount);
   const visibleCustomers = customers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   const rows = visibleCustomers.map((customer: any) => {
-    const orders = data.orders.filter((order: any) => order.customerId === customer.id || order.customerId === customer.apiId);
+    const orders = data.orders.filter((order: any) => order.customerId === customer.id || order.customerId === customer.apiId || order.customerEmail?.toLowerCase() === customer.email.toLowerCase());
     const orderCount = customer.totalOrders ?? orders.length;
     const lifetime = customer.totalSpent ?? orders.reduce((sum: number, order: any) => sum + order.total, 0);
     return [customer.name, customer.email, String(orderCount), `$${lifetime.toFixed(2)}`, customer.status];
@@ -38,7 +38,7 @@ export function CustomersPage() {
       setError('Enter a name and valid email address.');
       return;
     }
-    if (data.customers.some((customer: any) => customer.email.toLowerCase() === form.email.toLowerCase())) {
+    if (data.customers.some((customer: any) => customer.email.toLowerCase() === form.email.trim().toLowerCase())) {
       setError('A customer with that email already exists.');
       return;
     }
@@ -73,6 +73,6 @@ export function CustomersPage() {
     <div className="toolbar"><Search/><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Search name or email"/></div>
     <DataTable columns={['CUSTOMER', 'EMAIL', 'ORDERS', 'LIFETIME VALUE', 'STATUS']} rows={rows} onRowClick={openCustomer} emptyTitle="No customers match your search" emptyMessage="Try another name or email address."/>
     <div className="pagination-bar"><span>Showing {start} to {end} of {customers.length} customers</span><div><button disabled={currentPage <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>‹</button><strong>Page {currentPage} of {pageCount}</strong><button disabled={currentPage >= pageCount} onClick={() => setPage((value) => Math.min(pageCount, value + 1))}>›</button></div></div>
-    <Modal open={creating} title="Add customer" description="Create a customer profile for orders and activity." onClose={closeCreate} footer={<><button onClick={closeCreate}>Cancel</button><button className="primary" disabled={!valid || isSaving} onClick={save}>{isSaving ? 'Adding…' : 'Add customer'}</button></>}><FormFields values={form} onChange={(name, value) => { setError(''); setForm((current) => ({ ...current, [name]: value })); }} fields={[{ name: 'name', label: 'Full name', placeholder: 'Enter customer name', required: true, autoComplete: 'name' }, { name: 'email', label: 'Email address', type: 'email', placeholder: 'name@example.com', required: true, autoComplete: 'email' }, { name: 'phone', label: 'Phone number', type: 'tel', placeholder: '+1 555 0100', autoComplete: 'tel' }]}/>{error && <p className="form-error">{error}</p>}</Modal>
+    <Modal open={creating} title="Add customer" description="Create a customer profile for orders and activity." onClose={closeCreate} footer={<><button onClick={closeCreate}>Cancel</button><button className="primary" disabled={!valid || isSaving} onClick={save}>{isSaving ? 'Adding…' : 'Add customer'}</button></>}><FormFields values={form} onChange={(name, value) => { setError(''); setForm((current) => ({ ...current, [name]: value })); }} fields={[{ name: 'name', label: 'Full name', placeholder: 'Enter customer name', required: true, autoComplete: 'name' }, { name: 'email', label: 'Email address', type: 'email', placeholder: 'name@example.com', required: true, autoComplete: 'email' }, { name: 'phone', label: 'Phone number', type: 'tel', placeholder: 'Enter phone number', autoComplete: 'tel' }]}/>{error && <p className="form-error">{error}</p>}</Modal>
   </main>;
 }

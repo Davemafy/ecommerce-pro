@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MoreVertical, Plus, Search } from 'lucide-react';
 import { DataTable } from '../../components/ui/data-table';
 import { ExportButton } from '../../components/ui/export-button';
@@ -17,13 +17,20 @@ const formatDate = (value: string) => {
 
 export function OrdersPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { data, createOrder, isSaving } = useStore();
   const toast = useToast();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(() => searchParams.get('search') || '');
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ email: '', sku: '', quantity: '1' });
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
+  const searchParam = searchParams.get('search') || '';
+
+  useEffect(() => {
+    setQuery(searchParam);
+    setPage(1);
+  }, [searchParam]);
 
   const filtered = useMemo(() => data.orders.filter((order: any) => `${order.id} ${order.customer} ${order.status} ${order.paymentStatus}`.toLowerCase().includes(query.toLowerCase())), [data.orders, query]);
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -35,7 +42,7 @@ export function OrdersPage() {
     order.customer,
     formatDate(order.date),
     `$${order.total.toFixed(2)}`,
-    <span className={`status-chip ${order.paymentStatus === 'paid' ? 'paid' : 'unpaid'}`}>{formatStatus(order.paymentStatus)}</span>,
+    <span className={`status-chip ${String(order.paymentStatus).toLowerCase().replaceAll('_', '-')}`}>{formatStatus(order.paymentStatus)}</span>,
     <span className={`status-chip ${order.status.toLowerCase()}`}>{order.status}</span>,
     <button className="bare table-action-button" aria-label={`Open ${order.id}`} onClick={(event) => { event.stopPropagation(); navigate(`/orders/${order.id}`); }}><MoreVertical/></button>,
   ]);
@@ -53,13 +60,15 @@ export function OrdersPage() {
     }
   };
 
-  const valid = form.email.includes('@') && Boolean(form.sku.trim()) && Number(form.quantity) > 0;
+  const quantity = Number(form.quantity);
+  const valid = form.email.includes('@') && Boolean(form.sku.trim()) && Number.isInteger(quantity) && quantity > 0;
+  const canCreateOrder = data.customers.length > 0 && data.products.some((product: any) => product.stock > 0);
   const start = filtered.length ? (currentPage - 1) * PAGE_SIZE + 1 : 0;
   const end = Math.min(currentPage * PAGE_SIZE, filtered.length);
 
-  return <main className="orders-page"><PageHeader title="Orders" subtitle="Manage and track customer orders."><ExportButton data={exportRows} filename="commercepro-orders.csv"/><button className="primary" onClick={() => setCreating(true)}><Plus/>Create Order</button></PageHeader><div className="toolbar"><Search/><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Search order ID, customer, or status"/></div>
+  return <main className="orders-page"><PageHeader title="Orders" subtitle="Manage and track customer orders."><ExportButton data={exportRows} filename="commercepro-orders.csv"/><button className="primary" disabled={!canCreateOrder} title={canCreateOrder ? undefined : 'Add a customer and an in-stock product first'} onClick={() => setCreating(true)}><Plus/>Create Order</button></PageHeader><div className="toolbar"><Search/><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Search order ID, customer, or status"/></div>
     <DataTable columns={['ORDER', 'CUSTOMER', 'DATE', 'TOTAL', 'PAYMENT', 'FULFILLMENT', 'ACTIONS']} rows={rows} onRowClick={(row) => navigate(`/orders/${String(row[0]).replace('#', '')}`)} emptyTitle="No orders match your search" emptyMessage="Try another customer, order ID, or status."/>
     <div className="pagination-bar"><span>Showing {start} to {end} of {filtered.length} orders</span><div><button disabled={currentPage <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>‹</button><strong>Page {currentPage} of {pageCount}</strong><button disabled={currentPage >= pageCount} onClick={() => setPage((value) => Math.min(pageCount, value + 1))}>›</button></div></div>
-    <Modal open={creating} title="Create order" description="Create an order using an existing customer and catalog SKU." onClose={close} footer={<><button onClick={close}>Cancel</button><button className="primary" disabled={!valid || isSaving} onClick={save}>{isSaving ? 'Creating…' : 'Create order'}</button></>}><FormFields values={form} onChange={(name, value) => { setError(''); setForm((current) => ({ ...current, [name]: value })); }} fields={[{ name: 'email', label: 'Customer email', type: 'email', placeholder: data.customers[0]?.email || 'customer@example.com', required: true }, { name: 'sku', label: 'Product SKU', placeholder: data.products.find((product: any) => product.status === 'Active')?.sku || 'SKU-001', required: true }, { name: 'quantity', label: 'Quantity', type: 'number', placeholder: '1', required: true }]}/>{error && <p className="form-error">{error}</p>}</Modal>
+    <Modal open={creating} title="Create order" description="Create an order using an existing customer and catalog SKU." onClose={close} footer={<><button onClick={close}>Cancel</button><button className="primary" disabled={!valid || isSaving} onClick={save}>{isSaving ? 'Creating…' : 'Create order'}</button></>}><FormFields values={form} onChange={(name, value) => { setError(''); setForm((current) => ({ ...current, [name]: value })); }} fields={[{ name: 'email', label: 'Customer email', type: 'email', placeholder: 'Enter customer email', required: true, autoComplete: 'email' }, { name: 'sku', label: 'Product SKU', placeholder: 'Enter product SKU', required: true }, { name: 'quantity', label: 'Quantity', type: 'number', placeholder: '1', required: true, min: 1, step: 1, inputMode: 'numeric' }]}/>{error && <p className="form-error">{error}</p>}</Modal>
   </main>;
 }

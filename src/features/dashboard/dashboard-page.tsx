@@ -80,13 +80,14 @@ export function DashboardPage() {
   const pending = finiteNumber(overview.pendingOrders, overview.pendingOrderCount, derivedPending);
   const completed = finiteNumber(overview.completedOrders, overview.completedOrderCount, derivedCompleted);
   const series = buildPeriodRevenueSeries(data.orders, range);
-  const lowStock = data.products.filter((product: any) => {
-    if (product.status !== 'Active') return false;
+  const lowStockAll = data.products.filter((product: any) => {
+    if (product.status === 'Draft') return false;
     if (product.stock <= 0) return true;
     if (product.lowStockThreshold == null) return false;
     const threshold = Number(product.lowStockThreshold);
     return Number.isFinite(threshold) && product.stock <= threshold;
-  }).sort((a: any, b: any) => a.stock - b.stock).slice(0, 3);
+  }).sort((a: any, b: any) => a.stock - b.stock);
+  const lowStock = lowStockAll.slice(0, 3);
   const recentOrders = [...data.orders].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 4);
   const productName = (sku: string) => data.products.find((product: any) => product.sku === sku)?.name || sku || 'Multiple items';
   const conversion = Math.round((completed / Math.max(1, orderCount)) * 100);
@@ -105,7 +106,7 @@ export function DashboardPage() {
 
     <section className="dashboard-main-row">
       <article className="dashboard-card dashboard-revenue-card"><header><div><h2>Revenue Trend</h2><small>{range}</small></div><button className="bare" aria-label="View reports" onClick={() => navigate('/reports')}><MoreVertical/></button></header><RevenueChart values={series.map((item) => item.value)} labels={series.map((item) => item.label)}/></article>
-      <article className="dashboard-card dashboard-stock-card"><header><h2>Low Stock Alerts</h2><span className="dashboard-alert-count">{lowStock.length}</span></header><div className="dashboard-stock-list">{lowStock.length ? lowStock.map((product: any) => <div className="dashboard-stock-item" key={product.id}><span className="dashboard-stock-icon"><Package/></span><div><strong>{product.name}</strong><small>{product.stock} units left</small></div><button className="bare dashboard-restock" onClick={() => navigate('/inventory')}>Restock</button></div>) : <p className="dashboard-empty-note">No low stock products right now.</p>}</div></article>
+      <article className="dashboard-card dashboard-stock-card"><header><h2>Low Stock Alerts</h2><span className="dashboard-alert-count">{lowStockAll.length}</span></header><div className="dashboard-stock-list">{lowStock.length ? lowStock.map((product: any) => <div className="dashboard-stock-item" key={product.id}><span className="dashboard-stock-icon"><Package/></span><div><strong>{product.name}</strong><small>{product.stock} units left</small></div><button className="bare dashboard-restock" onClick={() => navigate('/inventory')}>Restock</button></div>) : <p className="dashboard-empty-note">No low stock products right now.</p>}</div></article>
     </section>
 
     <section className="dashboard-card dashboard-orders-card"><header><h2>Recent Orders</h2><button className="bare dashboard-view-all" onClick={() => navigate('/orders')}>View All</button></header><div className="dashboard-orders-scroll"><table><thead><tr><th>ORDER ID</th><th>CUSTOMER</th><th>PRODUCT</th><th>STATUS</th><th className="number">AMOUNT</th></tr></thead><tbody>{recentOrders.map((order: any) => <tr key={order.id} onClick={() => navigate(`/orders/${order.id}`)}><td className="mono">#{order.id}</td><td>{order.customer}</td><td>{productName(order.sku)}</td><td><span className={`status-chip ${order.status.toLowerCase()}`}>{order.status}</span></td><td className="number">${order.total.toFixed(2)}</td></tr>)}{!recentOrders.length && <tr><td colSpan={5}><div className="table-empty-state"><strong>No orders yet.</strong><span>Recent orders will appear here.</span></div></td></tr>}</tbody></table></div></section>

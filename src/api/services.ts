@@ -28,6 +28,9 @@ export const withQuery = (path: string, query?: Query) => {
 };
 
 export const authService = {
+  superAdminStatus: () => api.get(endpoints.auth.superAdminStatus),
+  createSuperAdmin: (data: { name: string; email: string; password: string }) =>
+    api.post(endpoints.auth.superAdmin, data),
   async login(credentials: { email: string; password: string }) {
     const response: any = await api.post(endpoints.auth.login, credentials);
     const data: any = unwrapData(response);

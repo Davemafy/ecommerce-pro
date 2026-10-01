@@ -43,6 +43,10 @@ export function OrderDetailPage() {
     return <main className="figma-page"><section className="card empty"><h1>Loading order…</h1><p>Fetching the latest order details.</p></section></main>;
   }
 
+  if (!order && orderQuery.isError) {
+    return <main className="figma-page"><section className="card empty"><h1>Couldn't load order</h1><p>{orderQuery.error instanceof Error ? orderQuery.error.message : 'The order request failed.'}</p><button onClick={() => orderQuery.refetch()}>Try again</button></section></main>;
+  }
+
   if (!order) {
     return <main className="figma-page"><button className="back" onClick={() => navigate('/orders')}>← Orders</button><section className="card empty"><h1>Order not found</h1><p>This order may have been removed or the link is no longer valid.</p></section></main>;
   }
@@ -53,13 +57,15 @@ export function OrderDetailPage() {
   const placedDate = formatDate(order.date);
   const status = order.status;
   const items = Array.isArray(order.items) ? order.items : [];
-  const subtotal = Number(order.subtotal || items.reduce((sum: number, item: any) => sum + Number(item.total ?? Number(item.price || 0) * Number(item.quantity || 1)), 0));
-  const shipping = Number(order.shipping || 0);
-  const tax = Number(order.tax || 0);
-  const discount = Number(order.discount || 0);
+  const subtotal = Number(order.subtotal ?? items.reduce((sum: number, item: any) => sum + Number(item.total ?? Number(item.price ?? 0) * Number(item.quantity ?? 0)), 0));
+  const shipping = Number(order.shipping ?? 0);
+  const tax = Number(order.tax ?? 0);
+  const discount = Number(order.discount ?? 0);
   const shippingAddress = addressText(order.shippingAddress) || customer?.address || '';
   const paymentLabel = titleCase(order.paymentStatus || 'pending');
   const paymentMethod = titleCase(order.paymentMethod || 'Not specified');
+  const trackingUrl = order.trackingUrl || order.tracking?.url || '';
+  const trackingNumber = order.trackingNumber || order.tracking?.number || order.tracking?.trackingNumber || '';
 
   const timeline = Array.isArray(order.timeline)
     ? order.timeline.map((entry: any, index: number) => ({
@@ -122,7 +128,7 @@ export function OrderDetailPage() {
       <aside className="order-detail-side">
         <section className="order-panel order-customer-panel"><h2><UserRound/>Customer Info</h2><div className="order-customer-person"><span className="order-customer-avatar" aria-hidden="true">{customerInitials || <UserRound/>}</span><div><strong>{customerName}</strong><button className="bare" onClick={() => customer && navigate(`/customers/${customer.id}`)}>{customer?.email || order.customerEmail || 'Customer profile'}</button></div></div><div className="order-side-field"><span>PHONE</span><p>{customer?.phone || 'Not provided'}</p></div></section>
 
-        <section className="order-panel order-shipping-panel"><h2><Truck/>Shipping Details</h2><div className="order-side-field"><span>SHIPPING ADDRESS</span><p>{shippingAddress || 'Address not provided'}</p></div><div className="order-side-field divided"><span>FULFILLMENT</span><p>{titleCase(order.fulfillmentStatus || status)}</p><button className="bare order-track-link" onClick={() => toast('Carrier tracking is not exposed by the current API')}>Tracking details</button></div></section>
+        <section className="order-panel order-shipping-panel"><h2><Truck/>Shipping Details</h2><div className="order-side-field"><span>SHIPPING ADDRESS</span><p>{shippingAddress || 'Address not provided'}</p></div><div className="order-side-field divided"><span>FULFILLMENT</span><p>{titleCase(order.fulfillmentStatus || status)}</p>{trackingUrl ? <button className="bare order-track-link" onClick={() => window.open(trackingUrl, '_blank', 'noopener,noreferrer')}>Tracking details</button> : trackingNumber ? <span className="order-track-unavailable">Tracking: {trackingNumber}</span> : <span className="order-track-unavailable">Tracking not available</span>}</div></section>
 
         <section className="order-panel order-activity-panel"><h2><History/>Activity Log</h2><div className="order-timeline">{timeline.length ? timeline.map((entry: any, index: number) => <div className={index === 0 ? 'active' : ''} key={entry.id}><i/><strong>{titleCase(entry.title)}</strong>{entry.description && <p>{entry.description}</p>}<small>{entry.date}</small></div>) : <p className="order-timeline-empty">No activity history returned by the API.</p>}</div></section>
       </aside>

@@ -1,7 +1,9 @@
 import { FormEvent, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Eye, EyeOff, LockKeyhole, Mail, Store } from 'lucide-react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ApiError } from '../../api/client';
+import { authService, unwrapData } from '../../api/services';
 import { isAuthenticated, login } from './auth-session';
 
 export function LoginPage() {
@@ -14,8 +16,16 @@ export function LoginPage() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const target = (location.state as { from?: string } | null)?.from || '/';
+  const setupStatusQuery = useQuery({
+    queryKey: ['super-admin-status'],
+    queryFn: authService.superAdminStatus,
+    staleTime: 30_000,
+    retry: 1,
+  });
+  const setupStatus = setupStatusQuery.data ? unwrapData<{ exists?: boolean }>(setupStatusQuery.data) : null;
 
   if (isAuthenticated()) return <Navigate to={target} replace />;
+  if (setupStatus?.exists === false) return <Navigate to="/setup" replace />;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -79,7 +89,7 @@ export function LoginPage() {
           </div>
           <button className="primary login-submit" type="submit" disabled={submitting}>{submitting ? 'Signing in…' : 'Sign in'}</button>
         </form>
-        <p className="login-help">Use the administrator credentials provided for this store.</p>
+        <p className="login-help">Use your store administrator credentials.</p>
       </section>
     </main>
   );

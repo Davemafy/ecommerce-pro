@@ -47,6 +47,10 @@ export function CustomerDetailPage() {
     return <main className="figma-page"><section className="card empty"><h1>Loading customer…</h1><p>Fetching the latest profile and order history.</p></section></main>;
   }
 
+  if (!customer && customerQuery.isError) {
+    return <main className="figma-page"><section className="card empty"><h1>Couldn't load customer</h1><p>{customerQuery.error instanceof Error ? customerQuery.error.message : 'The customer request failed.'}</p><button onClick={() => customerQuery.refetch()}>Try again</button></section></main>;
+  }
+
   if (!customer) {
     return <main className="figma-page"><section className="card empty"><h1>Customer not found</h1><p>This customer may have been removed or the link is no longer valid.</p><button onClick={() => navigate('/customers')}>Back to customers</button></section></main>;
   }
@@ -106,6 +110,8 @@ export function CustomerDetailPage() {
     }
   };
 
+  const viewOrders = () => navigate(`/orders?search=${encodeURIComponent(customer.email)}`);
+
   const copyEmail = async () => {
     try {
       await navigator.clipboard.writeText(customer.email);
@@ -119,11 +125,11 @@ export function CustomerDetailPage() {
     <section className="card customer-hero">
       <div className="customer-avatar-photo customer-avatar-initials" aria-hidden="true">{initials}</div>
       <div className="customer-hero-copy"><h1>{customer.name}</h1><p><Mail/>{customer.email}</p><div><span className="vip-chip">CUSTOMER</span><span className={`active-chip ${customer.status.toLowerCase()}`}>{customer.status}</span></div></div>
-      <DropdownMenu><DropdownMenuTrigger asChild><button className="customer-actions">Actions <ChevronDown/></button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => navigate('/orders')}>View orders</DropdownMenuItem><DropdownMenuItem onSelect={copyEmail}>Copy email address</DropdownMenuItem><DropdownMenuItem onSelect={openAddress}>{address ? 'Edit address' : 'Add address'}</DropdownMenuItem></DropdownMenuContent></DropdownMenu>
+      <DropdownMenu><DropdownMenuTrigger asChild><button className="customer-actions">Actions <ChevronDown/></button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={viewOrders}>View orders</DropdownMenuItem><DropdownMenuItem onSelect={copyEmail}>Copy email address</DropdownMenuItem><DropdownMenuItem onSelect={openAddress}>{address ? 'Edit address' : 'Add address'}</DropdownMenuItem></DropdownMenuContent></DropdownMenu>
     </section>
 
     <div className="customer-grid">
-      <section className="card order-history"><div className="customer-section-head"><h2>Order History</h2><button className="bare linkish" onClick={() => navigate('/orders')}>View All</button></div><table><thead><tr><th>ORDER ID</th><th>DATE</th><th>STATUS</th><th className="number">TOTAL</th></tr></thead><tbody>{orders.length ? orders.map((order: any) => <tr key={order.id} onClick={() => navigate(`/orders/${order.id}`)}><td className="mono">#{order.id}</td><td>{order.date ? new Date(order.date).toLocaleDateString() : '—'}</td><td><span className={`status-chip ${order.status.toLowerCase()}`}>{order.status}</span></td><td className="number">${order.total.toFixed(2)}</td></tr>) : <tr><td colSpan={4}><div className="table-empty-state"><strong>No orders yet.</strong><span>New customer orders will appear here automatically.</span></div></td></tr>}</tbody></table></section>
+      <section className="card order-history"><div className="customer-section-head"><h2>Order History</h2><button className="bare linkish" onClick={viewOrders}>View All</button></div><table><thead><tr><th>ORDER ID</th><th>DATE</th><th>STATUS</th><th className="number">TOTAL</th></tr></thead><tbody>{orders.length ? orders.map((order: any) => <tr key={order.id} onClick={() => navigate(`/orders/${order.id}`)}><td className="mono">#{order.id}</td><td>{order.date ? new Date(order.date).toLocaleDateString() : '—'}</td><td><span className={`status-chip ${order.status.toLowerCase()}`}>{order.status}</span></td><td className="number">${order.total.toFixed(2)}</td></tr>) : <tr><td colSpan={4}><div className="table-empty-state"><strong>No orders yet.</strong><span>New customer orders will appear here automatically.</span></div></td></tr>}</tbody></table></section>
 
       <aside className="customer-side">
         <section className="card customer-info"><h2>Personal Information</h2><div className="info-grid"><div><span>FULL NAME</span><p>{customer.name}</p></div><div><span>EMAIL</span><p>{customer.email}</p></div><div><span>PHONE</span><p>{customer.phone || 'Not provided'}</p></div><div><span>STATUS</span><p>{customer.status}</p></div><div><span>ORDERS</span><p>{orderCount}</p></div><div><span>LIFETIME VALUE</span><p>${Number(lifetimeValue).toFixed(2)}</p></div>{refunds.length > 0 && <div><span>REFUNDED</span><p>${refundedTotal.toFixed(2)}</p></div>}</div></section>

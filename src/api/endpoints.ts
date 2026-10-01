@@ -1,6 +1,8 @@
 export const endpoints = {
   health: '/health',
   auth: {
+    superAdminStatus: '/api/v1/admin/auth/super-admin/status',
+    superAdmin: '/api/v1/admin/auth/super-admin',
     login: '/api/v1/admin/auth/login',
     refresh: '/api/v1/admin/auth/refresh',
     logout: '/api/v1/admin/auth/logout',

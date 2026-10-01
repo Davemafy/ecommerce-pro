@@ -16,15 +16,15 @@ const emptySettings = {
     storeName: '',
     contactEmail: '',
     contactPhone: '',
-    currency: 'USD',
-    timezone: 'UTC',
+    currency: '',
+    timezone: '',
     logoName: '',
     logoData: '',
     address: {},
   },
   team: { members: [] as any[] },
   payments: { gateways: [] as any[] },
-  notifications: { masterPushEnabled: true, preferences: [] as any[] },
+  notifications: { masterPushEnabled: false, preferences: [] as any[] },
   security: { twoFactor: false },
 };
 
@@ -125,10 +125,10 @@ export function normalizeOrder(raw: any) {
     customerEmail: raw?.customerEmail || raw?.customer?.email || '',
     date: raw?.createdAt || raw?.date || raw?.updatedAt || '',
     total: Number(raw?.total || 0),
-    subtotal: Number(raw?.subtotal || 0),
-    tax: Number(raw?.tax || 0),
-    shipping: Number(raw?.shipping || 0),
-    discount: Number(raw?.discount || 0),
+    subtotal: raw?.subtotal == null ? null : Number(raw.subtotal),
+    tax: raw?.tax == null ? null : Number(raw.tax),
+    shipping: raw?.shipping == null ? null : Number(raw.shipping),
+    discount: raw?.discount == null ? null : Number(raw.discount),
     paymentStatus: raw?.paymentStatus || 'unknown',
     paymentMethod: raw?.paymentMethod || '',
     fulfillmentStatus: raw?.fulfillmentStatus || 'unknown',
@@ -148,8 +148,8 @@ function normalizeStore(response: any) {
     storeName: raw.name || raw.storeName || '',
     contactEmail: raw.contactEmail || '',
     contactPhone: raw.contactPhone || '',
-    currency: raw.currency || 'USD',
-    timezone: raw.timezone || 'UTC',
+    currency: raw.currency || '',
+    timezone: raw.timezone || '',
     address: raw.address || {},
     logoName: '',
     logoData: raw.logo || raw.logoUrl || raw.image || '',
@@ -165,7 +165,7 @@ function normalizePayments(response: any) {
 function normalizeNotifications(response: any) {
   const raw: any = unwrapData(response) || {};
   return {
-    masterPushEnabled: raw.masterPushEnabled ?? true,
+    masterPushEnabled: raw.masterPushEnabled ?? false,
     preferences: Array.isArray(raw.preferences) ? raw.preferences : [],
   };
 }
@@ -176,6 +176,40 @@ async function optional<T>(promise: Promise<T>, fallback: T): Promise<T> {
   } catch {
     return fallback;
   }
+}
+
+async function loadAll(
+  fetchPage: (page: number, limit: number) => Promise<any>,
+  candidates: string[],
+) {
+  const limit = 100;
+  const all: any[] = [];
+  const seen = new Set<string>();
+
+  for (let page = 1; page <= 100; page += 1) {
+    const response: any = await fetchPage(page, limit);
+    const items = unwrapList<any>(response, candidates);
+    let added = 0;
+
+    items.forEach((item: any, index: number) => {
+      const identity = item?._id || item?.id || item?.orderNumber || item?.sku || item?.email;
+      const key = identity ? String(identity) : `${page}:${index}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      all.push(item);
+      added += 1;
+    });
+
+    const data: any = unwrapData(response);
+    const meta = response?.meta || data?.meta || {};
+    const totalPages = Number(meta.totalPages || 0);
+
+    if ((totalPages > 0 && page >= totalPages) || (totalPages <= 0 && items.length < limit) || items.length === 0 || added === 0) {
+      break;
+    }
+  }
+
+  return all;
 }
 
 function createProductPayload(product: any) {
@@ -224,10 +258,19 @@ export const commerceService = {
   referenceData: structuredClone(emptyCommerceData),
 
   async getData() {
-    const [productsResponse, customersResponse, ordersResponse] = await Promise.all([
-      productService.list({ page: 1, limit: 100, sortBy: 'createdAt', sortOrder: 'desc' }),
-      customerService.list({ page: 1, limit: 100, sortBy: 'createdAt', sortOrder: 'desc' }),
-      orderService.list({ page: 1, limit: 100, sortBy: 'createdAt', sortOrder: 'desc' }),
+    const [products, customers, orders] = await Promise.all([
+      loadAll(
+        (page, limit) => productService.list({ page, limit, sortBy: 'createdAt', sortOrder: 'desc' }),
+        ['products'],
+      ),
+      loadAll(
+        (page, limit) => customerService.list({ page, limit, sortBy: 'createdAt', sortOrder: 'desc' }),
+        ['customers'],
+      ),
+      loadAll(
+        (page, limit) => orderService.list({ page, limit, sortBy: 'createdAt', sortOrder: 'desc' }),
+        ['orders'],
+      ),
     ]);
 
     const [storeResponse, paymentsResponse, notificationsResponse, dashboardResponse, analyticsResponse] =
@@ -240,9 +283,9 @@ export const commerceService = {
       ]);
 
     return {
-      products: unwrapList(productsResponse, ['products']).map(normalizeProduct),
-      customers: unwrapList(customersResponse, ['customers']).map(normalizeCustomer),
-      orders: unwrapList(ordersResponse, ['orders']).map(normalizeOrder),
+      products: products.map(normalizeProduct),
+      customers: customers.map(normalizeCustomer),
+      orders: orders.map(normalizeOrder),
       dashboard: dashboardResponse ? unwrapData(dashboardResponse) : null,
       analytics: analyticsResponse ? unwrapData(analyticsResponse) : null,
       settings: {
@@ -374,7 +417,7 @@ export const commerceService = {
   },
 
   async adjustInventory(sku: string, amount: number, note: string | undefined, data: any) {
-    const product = data.products.find((item: any) => item.sku === sku);
+    const product = data.products.find((item: any) => item.sku.toLowerCase() === String(sku).trim().toLowerCase());
     if (!product) throw new Error('Product not found.');
     return inventoryService.adjust(product.apiId || product.id, Number(amount), 'adjustment', note);
   },
