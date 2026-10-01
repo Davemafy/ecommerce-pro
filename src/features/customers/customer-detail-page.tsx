@@ -53,8 +53,8 @@ export function CustomerDetailPage() {
 
   const globalOrders = data.orders.filter((order: any) => order.customerId === customer.id || order.customerId === customer.apiId || order.customerEmail === customer.email);
   const orders = customer.detailOrders?.length ? customer.detailOrders : globalOrders;
-  const lifetimeValue = customer.totalSpent || orders.reduce((sum: number, order: any) => sum + order.total, 0);
-  const orderCount = customer.totalOrders || orders.length;
+  const lifetimeValue = customer.totalSpent ?? orders.reduce((sum: number, order: any) => sum + order.total, 0);
+  const orderCount = customer.totalOrders ?? orders.length;
   const initials = customer.name.split(' ').map((part: string) => part[0]).join('').slice(0, 2).toUpperCase();
   const address = customer.address || '';
   const backendNotes = Array.isArray(customer.notes) ? customer.notes : [];

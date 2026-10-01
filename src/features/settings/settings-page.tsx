@@ -204,10 +204,10 @@ function NotificationSettings({ form, reload }: { form: any; reload: () => any }
 async function authlessUpdateNotification(eventType: string, enabled: boolean, preferences: any[]) {
   const { notificationService } = await import('../../api/services');
   const current = preferences.find((item: any) => item.eventType === eventType || item.type === eventType);
-  return notificationService.updateEvent(eventType, {
-    enabled,
-    channels: current?.channels || { push: true, email: true, in_app: true },
-  });
+  return notificationService.updateEvent(
+    eventType,
+    current?.channels ? { enabled, channels: current.channels } : { enabled },
+  );
 }
 
 function SecuritySettings({ currentAdmin }: { currentAdmin: any }) {

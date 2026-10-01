@@ -5,7 +5,6 @@ import { useStore } from '../../data/store';
 import { commerceService } from '../../services/commerce-service';
 import { useToast } from '../../components/ui/feedback';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
-import adminPfp from '../../assets/admin-pfp.png';
 
 const formatDate = (value?: string) => {
   if (!value) return '—';
@@ -49,9 +48,11 @@ export function OrderDetailPage() {
   }
 
   const customer = data.customers.find((item: any) => item.id === order.customerId || item.apiId === order.customerId || item.email === order.customerEmail);
+  const customerName = customer?.name || order.customer || 'Customer';
+  const customerInitials = customerName.split(' ').filter(Boolean).map((part: string) => part[0]).join('').slice(0, 2).toUpperCase();
   const placedDate = formatDate(order.date);
   const status = order.status;
-  const items = order.items?.length ? order.items : [{ sku: order.sku, quantity: order.quantity, price: order.total / Math.max(1, order.quantity), total: order.total }];
+  const items = Array.isArray(order.items) ? order.items : [];
   const subtotal = Number(order.subtotal || items.reduce((sum: number, item: any) => sum + Number(item.total ?? Number(item.price || 0) * Number(item.quantity || 1)), 0));
   const shipping = Number(order.shipping || 0);
   const tax = Number(order.tax || 0);
@@ -60,17 +61,14 @@ export function OrderDetailPage() {
   const paymentLabel = titleCase(order.paymentStatus || 'pending');
   const paymentMethod = titleCase(order.paymentMethod || 'Not specified');
 
-  const timeline = order.timeline?.length
+  const timeline = Array.isArray(order.timeline)
     ? order.timeline.map((entry: any, index: number) => ({
         id: entry._id || entry.id || index,
         title: entry.title || entry.event || entry.status || 'Order update',
         description: entry.note || entry.message || entry.description || '',
         date: formatDate(entry.createdAt || entry.date || entry.timestamp),
       }))
-    : [
-        { id: 'status', title: `Order ${status}`, description: status === 'Completed' ? 'Order was fulfilled successfully.' : `Current fulfillment status is ${status.toLowerCase()}.`, date: placedDate },
-        { id: 'placed', title: 'Order Placed', description: `Order ${order.id} was created for ${customer?.name || order.customer}.`, date: placedDate },
-      ];
+    : [];
 
   const setStatus = async (next: 'Pending' | 'Processing' | 'Shipped' | 'Completed' | 'Cancelled') => {
     try {
@@ -112,7 +110,7 @@ export function OrderDetailPage() {
             const price = Number(item.price ?? product?.price ?? 0);
             const total = Number(item.total ?? price * quantity);
             return <tr key={item._id || item.id || `${item.sku || 'item'}-${index}`}><td><div className="order-product-cell"><span className="order-product-thumb">{product?.images?.[0] ? <img src={product.images[0]} alt=""/> : <Package/>}</span><div><strong>{item.name || product?.name || 'Product'}</strong><small>{product?.category || 'Catalog item'}</small></div></div></td><td className="mono">{item.sku || product?.sku || '—'}</td><td className="number">{quantity}</td><td className="number">${price.toFixed(2)}</td><td className="number strong">${total.toFixed(2)}</td></tr>;
-          })}</tbody></table></div>
+          })}{!items.length && <tr><td colSpan={5}><div className="table-empty-state"><strong>No item details returned.</strong><span>The API did not include line items for this order.</span></div></td></tr>}</tbody></table></div>
         </section>
 
         <section className="order-panel order-payment-panel">
@@ -122,11 +120,11 @@ export function OrderDetailPage() {
       </div>
 
       <aside className="order-detail-side">
-        <section className="order-panel order-customer-panel"><h2><UserRound/>Customer Info</h2><div className="order-customer-person"><img src={adminPfp} alt=""/><div><strong>{customer?.name || order.customer}</strong><button className="bare" onClick={() => customer && navigate(`/customers/${customer.id}`)}>{customer?.email || order.customerEmail || 'Customer profile'}</button></div></div><div className="order-side-field"><span>PHONE</span><p>{customer?.phone || 'Not provided'}</p></div></section>
+        <section className="order-panel order-customer-panel"><h2><UserRound/>Customer Info</h2><div className="order-customer-person"><span className="order-customer-avatar" aria-hidden="true">{customerInitials || <UserRound/>}</span><div><strong>{customerName}</strong><button className="bare" onClick={() => customer && navigate(`/customers/${customer.id}`)}>{customer?.email || order.customerEmail || 'Customer profile'}</button></div></div><div className="order-side-field"><span>PHONE</span><p>{customer?.phone || 'Not provided'}</p></div></section>
 
         <section className="order-panel order-shipping-panel"><h2><Truck/>Shipping Details</h2><div className="order-side-field"><span>SHIPPING ADDRESS</span><p>{shippingAddress || 'Address not provided'}</p></div><div className="order-side-field divided"><span>FULFILLMENT</span><p>{titleCase(order.fulfillmentStatus || status)}</p><button className="bare order-track-link" onClick={() => toast('Carrier tracking is not exposed by the current API')}>Tracking details</button></div></section>
 
-        <section className="order-panel order-activity-panel"><h2><History/>Activity Log</h2><div className="order-timeline">{timeline.map((entry: any, index: number) => <div className={index === 0 ? 'active' : ''} key={entry.id}><i/><strong>{titleCase(entry.title)}</strong>{entry.description && <p>{entry.description}</p>}<small>{entry.date}</small></div>)}</div></section>
+        <section className="order-panel order-activity-panel"><h2><History/>Activity Log</h2><div className="order-timeline">{timeline.length ? timeline.map((entry: any, index: number) => <div className={index === 0 ? 'active' : ''} key={entry.id}><i/><strong>{titleCase(entry.title)}</strong>{entry.description && <p>{entry.description}</p>}<small>{entry.date}</small></div>) : <p className="order-timeline-empty">No activity history returned by the API.</p>}</div></section>
       </aside>
     </div>
   </main>;

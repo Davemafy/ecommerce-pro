@@ -6,13 +6,14 @@ import { dashboardService, unwrapData } from '../../api/services';
 import { ExportButton } from '../../components/ui/export-button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
 import { useStore } from '../../data/store';
-import { buildPeriodRevenueSeries, totalRevenue } from '../../utils/analytics';
+import { buildPeriodRevenueSeries, filterOrdersByRange, totalRevenue } from '../../utils/analytics';
 
 const ranges = ['Last 7 Days', 'Last 30 Days', 'Last 90 Days'] as const;
 const rangeCode: Record<string, '7d' | '30d' | '90d'> = { 'Last 7 Days': '7d', 'Last 30 Days': '30d', 'Last 90 Days': '90d' };
 
 function finiteNumber(...values: any[]) {
   for (const value of values) {
+    if (value === null || value === undefined || value === '') continue;
     const number = Number(value);
     if (Number.isFinite(number)) return number;
   }
@@ -69,16 +70,23 @@ export function DashboardPage() {
   });
   const overview: any = dashboardQuery.data ? unwrapData(dashboardQuery.data) : data.dashboard || {};
 
-  const derivedRevenue = totalRevenue(data.orders);
-  const derivedPending = data.orders.filter((order: any) => order.status.toLowerCase() === 'pending').length;
-  const derivedCompleted = data.orders.filter((order: any) => order.status === 'Completed').length;
+  const rangeOrders = filterOrdersByRange(data.orders, range);
+  const derivedRevenue = totalRevenue(rangeOrders);
+  const derivedPending = rangeOrders.filter((order: any) => order.status.toLowerCase() === 'pending').length;
+  const derivedCompleted = rangeOrders.filter((order: any) => order.status === 'Completed').length;
   const revenue = finiteNumber(overview.totalRevenue, overview.revenue, overview.sales?.total, derivedRevenue);
-  const orderCount = finiteNumber(overview.totalOrders, overview.orderCount, overview.ordersCount, data.orders.length);
+  const orderCount = finiteNumber(overview.totalOrders, overview.orderCount, overview.ordersCount, rangeOrders.length);
   const customerCount = finiteNumber(overview.totalCustomers, overview.customerCount, overview.customersCount, data.customers.length);
   const pending = finiteNumber(overview.pendingOrders, overview.pendingOrderCount, derivedPending);
   const completed = finiteNumber(overview.completedOrders, overview.completedOrderCount, derivedCompleted);
   const series = buildPeriodRevenueSeries(data.orders, range);
-  const lowStock = data.products.filter((product: any) => product.status === 'Active' && product.stock <= (product.lowStockThreshold ?? 10)).sort((a: any, b: any) => a.stock - b.stock).slice(0, 3);
+  const lowStock = data.products.filter((product: any) => {
+    if (product.status !== 'Active') return false;
+    if (product.stock <= 0) return true;
+    if (product.lowStockThreshold == null) return false;
+    const threshold = Number(product.lowStockThreshold);
+    return Number.isFinite(threshold) && product.stock <= threshold;
+  }).sort((a: any, b: any) => a.stock - b.stock).slice(0, 3);
   const recentOrders = [...data.orders].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 4);
   const productName = (sku: string) => data.products.find((product: any) => product.sku === sku)?.name || sku || 'Multiple items';
   const conversion = Math.round((completed / Math.max(1, orderCount)) * 100);
@@ -91,7 +99,7 @@ export function DashboardPage() {
   ];
 
   return <main className="dashboard-figma">
-    <header className="dashboard-header"><div><h1>Overview</h1><p>Track your store's performance and recent activities.</p></div><div className="dashboard-header-actions"><DropdownMenu><DropdownMenuTrigger asChild><button><CalendarDays/>{range}<ChevronDown/></button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuRadioGroup value={range} onValueChange={(value) => setRange(value as (typeof ranges)[number])}>{ranges.map((item) => <DropdownMenuRadioItem value={item} key={item}>{item}</DropdownMenuRadioItem>)}</DropdownMenuRadioGroup></DropdownMenuContent></DropdownMenu><ExportButton label="Export Report" data={data.orders} filename="commercepro-dashboard-report.csv"/></div></header>
+    <header className="dashboard-header"><div><h1>Overview</h1><p>Track your store's performance and recent activities.</p></div><div className="dashboard-header-actions"><DropdownMenu><DropdownMenuTrigger asChild><button><CalendarDays/>{range}<ChevronDown/></button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuRadioGroup value={range} onValueChange={(value) => setRange(value as (typeof ranges)[number])}>{ranges.map((item) => <DropdownMenuRadioItem value={item} key={item}>{item}</DropdownMenuRadioItem>)}</DropdownMenuRadioGroup></DropdownMenuContent></DropdownMenu><ExportButton label="Export Report" data={rangeOrders} filename="commercepro-dashboard-report.csv"/></div></header>
 
     <section className="dashboard-kpis">{kpis.map((item) => <article key={item.label} className={item.danger ? 'dashboard-kpi danger' : 'dashboard-kpi'}><div className="dashboard-kpi-label"><span>{item.label}</span>{item.icon}</div><strong>{item.value}</strong><small>{item.detail}</small></article>)}</section>
 

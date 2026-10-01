@@ -23,8 +23,8 @@ export function LoginPage() {
       setError('Enter a valid email address.');
       return;
     }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+    if (!password) {
+      setError('Enter your password.');
       return;
     }
 
@@ -62,7 +62,7 @@ export function LoginPage() {
             Email address
             <div className="login-field">
               <Mail />
-              <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="admin@store.com" autoComplete="email" required autoFocus />
+              <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Enter admin email" autoComplete="email" required autoFocus />
             </div>
           </label>
           <label>

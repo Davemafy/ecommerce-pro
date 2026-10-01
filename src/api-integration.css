@@ -148,3 +148,21 @@ select:disabled {
     white-space: nowrap;
   }
 }
+
+
+/* API-backed empty/fallback states */
+.order-customer-avatar {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #c7c4d8;
+  border-radius: 50%;
+  background: #f2f4f6;
+  color: #3525cd;
+  font-size: 13px;
+  font-weight: 700;
+}
+.order-customer-avatar svg { width: 20px; height: 20px; }
+.order-timeline-empty { margin: 0; color: #777587; font-size: 13px; line-height: 20px; }

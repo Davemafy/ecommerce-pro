@@ -71,35 +71,63 @@ export function ProductDetailPage() {
     return <main><button className="back" onClick={() => navigate('/products')}><ArrowLeft/>Products</button><section className="card empty"><h1>Product not found</h1><p>This product may have been removed or the link is no longer valid.</p></section></main>;
   }
 
-  const productOrders = data.orders.filter((order: any) =>
-    order.sku === product.sku ||
-    order.items?.some((item: any) => item.sku === product.sku || item.productId === product.apiId),
-  );
-  const productRevenue = productOrders.reduce((sum: number, order: any) => sum + order.total, 0);
-  const capacity = Math.min(100, Math.max(8, Math.round((product.stock / Math.max(50, product.stock)) * 100)));
-  const chart = buildPeriodRevenueSeries(productOrders, rangeLabel[range]);
-  const maxChart = Math.max(...chart.map((item) => item.value), 1);
-  const soldUnits = Number(product.totalSold || 0) || productOrders.reduce((sum: number, order: any) => sum + Number(order.quantity || 0), 0);
+  const productSales = data.orders.flatMap((order: any) => {
+    const items = Array.isArray(order.items) ? order.items : [];
+    const matchingItems = items.filter(
+      (item: any) => item.sku === product.sku || item.productId === product.apiId || item.productId === product.id,
+    );
 
-  const history = inventoryHistory.length
-    ? inventoryHistory.map((entry: any, index: number) => ({
-        id: entry._id || entry.id || index,
-        date: historyDate(entry),
-        action: String(entry.type || entry.action || 'adjustment').replaceAll('_', ' '),
-        quantity: historyQuantity(entry),
-        user: entry.user?.name || entry.adminName || entry.createdBy?.name || 'System',
-        notes: entry.note || entry.notes || entry.reason || '—',
-      }))
-    : [...productOrders]
-        .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .map((order: any) => ({
-          id: order.id,
-          date: historyDate(order),
-          action: 'sale',
-          quantity: -Number(order.quantity || 1),
-          user: 'CommercePro',
-          notes: `#${order.id}`,
-        }));
+    if (matchingItems.length) {
+      const contribution = matchingItems.reduce(
+        (result: { amount: number; quantity: number }, item: any) => {
+          const quantity = Number(item.quantity ?? 0);
+          const directTotal = item.total == null ? NaN : Number(item.total);
+          const unitPrice = item.price == null ? Number(product.price) : Number(item.price);
+          const amount = Number.isFinite(directTotal)
+            ? directTotal
+            : Number.isFinite(unitPrice) && Number.isFinite(quantity)
+              ? unitPrice * quantity
+              : 0;
+          return {
+            amount: result.amount + amount,
+            quantity: result.quantity + (Number.isFinite(quantity) ? quantity : 0),
+          };
+        },
+        { amount: 0, quantity: 0 },
+      );
+      return [{ order, ...contribution }];
+    }
+
+    if (order.sku === product.sku) {
+      return [{
+        order,
+        amount: Number.isFinite(Number(order.total)) ? Number(order.total) : 0,
+        quantity: Number.isFinite(Number(order.quantity)) ? Number(order.quantity) : 0,
+      }];
+    }
+
+    return [];
+  });
+  const productOrders = productSales.map(({ order }: any) => order);
+  const productRevenue = productSales.reduce((sum: number, sale: any) => sum + sale.amount, 0);
+  const productRevenueOrders = productSales.map((sale: any) => ({ ...sale.order, total: sale.amount }));
+  const threshold = product.lowStockThreshold == null ? null : Number(product.lowStockThreshold);
+  const thresholdCoverage = threshold != null && Number.isFinite(threshold) && threshold > 0
+    ? Math.round((product.stock / threshold) * 100)
+    : null;
+  const chart = buildPeriodRevenueSeries(productRevenueOrders, rangeLabel[range]);
+  const maxChart = Math.max(...chart.map((item) => item.value), 1);
+  const derivedSoldUnits = productSales.reduce((sum: number, sale: any) => sum + sale.quantity, 0);
+  const soldUnits = product.totalSold == null ? derivedSoldUnits : Number(product.totalSold);
+
+  const history = inventoryHistory.map((entry: any, index: number) => ({
+    id: entry._id || entry.id || index,
+    date: historyDate(entry),
+    action: String(entry.type || entry.action || 'adjustment').replaceAll('_', ' '),
+    quantity: historyQuantity(entry),
+    user: entry.user?.name || entry.adminName || entry.createdBy?.name || '—',
+    notes: entry.note || entry.notes || entry.reason || '—',
+  }));
 
   const save = async () => {
     const price = Number(form.price);
@@ -145,7 +173,7 @@ export function ProductDetailPage() {
 
     <div className="product-bento">
       <section className="card product-overview"><div className="keyboard-photo figma-keyboard-photo"><ProductVisual name={product.name} size="lg" src={product.images?.[0]}/></div><div className="product-copy"><h2>Details</h2><p>{product.description || 'No product description has been added yet.'}</p><div className="detail-facts"><div><span>SKU</span><b className="mono">{product.sku}</b></div><div><span>CATEGORY</span><b>{product.category}</b></div><div><span>PRICE</span><strong>${product.price.toFixed(2)}</strong></div><div><span>CURRENT STOCK</span><b><i className="purple-dot"/>{product.stock} units</b></div></div></div></section>
-      <div className="product-side-stack"><section className="card inventory-status"><h2>Inventory Status</h2><div className="capacity-label"><b>Fulfillment Capacity</b><span>{capacity}%</span></div><div className="capacity-track"><i style={{ width: `${capacity}%` }}/></div><div className="mini-label">Catalog</div><div className="location-chips"><span>Available ({product.stock})</span><span>Sold ({soldUnits})</span></div></section><section className="revenue-card"><span>TOTAL REVENUE</span><strong>${productRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong><p>{productOrders.length} recorded order{productOrders.length === 1 ? '' : 's'}</p></section></div>
+      <div className="product-side-stack"><section className="card inventory-status"><h2>Inventory Status</h2><div className="capacity-label"><b>Stock vs. reorder point</b><span>{thresholdCoverage == null ? 'Not set' : `${thresholdCoverage}%`}</span></div><div className="capacity-track"><i style={{ width: `${thresholdCoverage == null ? 0 : Math.min(100, thresholdCoverage)}%` }}/></div><div className="mini-label">Catalog</div><div className="location-chips"><span>Available ({product.stock})</span><span>Sold ({soldUnits})</span></div></section><section className="revenue-card"><span>TOTAL REVENUE</span><strong>${productRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong><p>{productOrders.length} recorded order{productOrders.length === 1 ? '' : 's'}</p></section></div>
     </div>
 
     <section className="card sales-card"><div className="sales-head"><h2>Sales Performance</h2><div>{(['30D', '90D', '1Y'] as ChartRange[]).map((item) => <button key={item} className={range === item ? 'selected' : ''} onClick={() => setRange(item)}>{item}</button>)}</div></div><div className="sales-chart-area"><div className="y-axis"><span>${maxChart.toFixed(0)}</span><span>${(maxChart * .66).toFixed(0)}</span><span>${(maxChart * .33).toFixed(0)}</span><span>$0</span></div><div className="bars">{chart.map((item, index) => <i key={`${range}-${item.label}-${index}`} style={{ height: `${Math.max(4, (item.value / maxChart) * 100)}%`, opacity: item.value ? 0.45 + index * .08 : .12 }} title={`${item.label}: $${item.value.toFixed(2)}`}/>)}</div></div><div className="x-axis">{chart.filter((_, index) => index === 0 || index === Math.floor(chart.length / 2) || index === chart.length - 1).map((item) => <span key={item.label}>{item.label}</span>)}</div></section>

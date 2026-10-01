@@ -27,8 +27,8 @@ export function CustomersPage() {
   const visibleCustomers = customers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   const rows = visibleCustomers.map((customer: any) => {
     const orders = data.orders.filter((order: any) => order.customerId === customer.id || order.customerId === customer.apiId);
-    const orderCount = customer.totalOrders || orders.length;
-    const lifetime = customer.totalSpent || orders.reduce((sum: number, order: any) => sum + order.total, 0);
+    const orderCount = customer.totalOrders ?? orders.length;
+    const lifetime = customer.totalSpent ?? orders.reduce((sum: number, order: any) => sum + order.total, 0);
     return [customer.name, customer.email, String(orderCount), `$${lifetime.toFixed(2)}`, customer.status];
   });
 
@@ -61,8 +61,12 @@ export function CustomersPage() {
   const valid = Boolean(form.name.trim()) && form.email.includes('@');
   const start = customers.length ? (currentPage - 1) * PAGE_SIZE + 1 : 0;
   const end = Math.min(currentPage * PAGE_SIZE, customers.length);
-  const repeatCustomers = data.customers.filter((customer: any) => (customer.totalOrders || data.orders.filter((order: any) => order.customerId === customer.id || order.customerId === customer.apiId).length) > 1).length;
-  const totalCustomerValue = data.customers.reduce((sum: number, customer: any) => sum + Number(customer.totalSpent || 0), 0) || data.orders.reduce((sum: number, order: any) => sum + order.total, 0);
+  const repeatCustomers = data.customers.filter((customer: any) => (customer.totalOrders ?? data.orders.filter((order: any) => order.customerId === customer.id || order.customerId === customer.apiId || order.customerEmail === customer.email).length) > 1).length;
+  const totalCustomerValue = data.customers.reduce((sum: number, customer: any) => {
+    if (customer.totalSpent != null) return sum + Number(customer.totalSpent);
+    const customerOrders = data.orders.filter((order: any) => order.customerId === customer.id || order.customerId === customer.apiId || order.customerEmail === customer.email);
+    return sum + customerOrders.reduce((orderSum: number, order: any) => orderSum + Number(order.total || 0), 0);
+  }, 0);
 
   return <main><PageHeader title="Customers" subtitle="View customer profiles, activity and lifetime value."><ExportButton data={customers.map((customer: any) => ({ name: customer.name, email: customer.email, phone: customer.phone, status: customer.status }))} filename="commercepro-customers.csv"/><button className="primary" onClick={() => setCreating(true)}><Plus/>Add Customer</button></PageHeader>
     <SummaryCards items={[['TOTAL CUSTOMERS', String(data.customers.length), 'Customer accounts'], ['REPEAT CUSTOMERS', `${Math.round(repeatCustomers / Math.max(1, data.customers.length) * 100)}%`, '2+ orders'], ['TOTAL CUSTOMER VALUE', `$${totalCustomerValue.toFixed(2)}`, 'Recorded orders']]}/>

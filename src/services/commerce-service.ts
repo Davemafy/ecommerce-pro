@@ -48,7 +48,7 @@ const productStatus = (value?: string) => {
   if (value === 'active') return 'Active';
   if (value === 'draft') return 'Draft';
   if (value === 'out_of_stock') return 'Out of Stock';
-  return value ? titleCase(value) : 'Draft';
+  return value ? titleCase(value) : 'Unknown';
 };
 
 const fulfillmentStatus = (value?: string) => {
@@ -57,7 +57,7 @@ const fulfillmentStatus = (value?: string) => {
   if (value === 'processing') return 'Processing';
   if (value === 'cancelled') return 'Cancelled';
   if (value === 'refunded') return 'Refunded';
-  return 'Pending';
+  return value ? titleCase(value) : 'Unknown';
 };
 
 export function normalizeProduct(raw: any) {
@@ -72,12 +72,12 @@ export function normalizeProduct(raw: any) {
     price: Number(raw?.price || 0),
     compareAtPrice: raw?.compareAtPrice == null ? null : Number(raw.compareAtPrice),
     stock: Number(raw?.stock || 0),
-    lowStockThreshold: Number(raw?.lowStockThreshold ?? 10),
+    lowStockThreshold: raw?.lowStockThreshold == null ? null : Number(raw.lowStockThreshold),
     status: productStatus(raw?.status),
     images: Array.isArray(raw?.images) ? raw.images : [],
     variants: Array.isArray(raw?.variants) ? raw.variants : [],
     tags: Array.isArray(raw?.tags) ? raw.tags : [],
-    totalSold: Number(raw?.totalSold || 0),
+    totalSold: raw?.totalSold == null ? null : Number(raw.totalSold),
   };
 }
 
@@ -104,11 +104,11 @@ export function normalizeCustomer(raw: any) {
     name: raw?.name || 'Unnamed customer',
     email: raw?.email || '',
     phone: raw?.phone || '',
-    status: raw?.status === 'blocked' ? 'Blocked' : 'Active',
+    status: raw?.status === 'blocked' ? 'Blocked' : raw?.status === 'active' ? 'Active' : raw?.status ? titleCase(raw.status) : 'Unknown',
     addresses,
     address: addressText(addresses[0] || raw?.address),
-    totalOrders: Number(raw?.totalOrders || 0),
-    totalSpent: Number(raw?.totalSpent || 0),
+    totalOrders: raw?.totalOrders == null ? null : Number(raw.totalOrders),
+    totalSpent: raw?.totalSpent == null ? null : Number(raw.totalSpent),
   };
 }
 
@@ -129,12 +129,12 @@ export function normalizeOrder(raw: any) {
     tax: Number(raw?.tax || 0),
     shipping: Number(raw?.shipping || 0),
     discount: Number(raw?.discount || 0),
-    paymentStatus: raw?.paymentStatus || 'pending',
+    paymentStatus: raw?.paymentStatus || 'unknown',
     paymentMethod: raw?.paymentMethod || '',
-    fulfillmentStatus: raw?.fulfillmentStatus || 'pending',
+    fulfillmentStatus: raw?.fulfillmentStatus || 'unknown',
     status: fulfillmentStatus(raw?.fulfillmentStatus),
     sku: first?.sku || first?.productSku || first?.variantSku || '',
-    quantity: Number(first?.quantity || raw?.itemCount || 1),
+    quantity: Number(first?.quantity ?? raw?.itemCount ?? 0),
     items,
     timeline: Array.isArray(raw?.timeline) ? raw.timeline : [],
     shippingAddress: raw?.shippingAddress || null,
@@ -331,7 +331,7 @@ export const commerceService = {
 
     if (!customer) throw new Error('Choose an existing customer email.');
     if (!product) throw new Error('Choose an existing product SKU.');
-    if (!Number.isFinite(quantity) || quantity < 1) throw new Error('Quantity must be at least 1.');
+    if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Quantity must be a whole number of at least 1.');
     if (product.stock < quantity) throw new Error('Not enough stock is available.');
 
     const subtotal = product.price * quantity;
@@ -354,7 +354,6 @@ export const commerceService = {
       shipping: 0,
       discount: 0,
       total: subtotal,
-      paymentMethod: 'manual',
       shippingAddress: customer.addresses?.[0] || undefined,
       billingAddress: customer.addresses?.[0] || undefined,
     });
