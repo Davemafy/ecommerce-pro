@@ -20,7 +20,16 @@ export function useStore() {
   const command = useMutation({
     mutationFn: (operation: () => Promise<any>) => operation(),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: DATA_KEY });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: DATA_KEY }),
+        queryClient.invalidateQueries({ queryKey: ['order'] }),
+        queryClient.invalidateQueries({ queryKey: ['product'] }),
+        queryClient.invalidateQueries({ queryKey: ['customer'] }),
+        queryClient.invalidateQueries({ queryKey: ['inventory-history'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard-overview'] }),
+        queryClient.invalidateQueries({ queryKey: ['analytics-overview'] }),
+        queryClient.invalidateQueries({ queryKey: ['notification-history'] }),
+      ]);
     },
   });
 
