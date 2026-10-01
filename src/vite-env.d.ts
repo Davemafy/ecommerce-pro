@@ -1,3 +1,4 @@
+// CommercePro environment declarations.
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
