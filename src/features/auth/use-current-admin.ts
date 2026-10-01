@@ -4,7 +4,10 @@ import { authService, unwrapData } from '../../api/services';
 export function useCurrentAdmin() {
   return useQuery({
     queryKey: ['current-admin'],
-    queryFn: async () => unwrapData<any>(await authService.me()),
+    queryFn: async () => {
+      const data: any = unwrapData<any>(await authService.me());
+      return data?.user || data?.admin || data;
+    },
     staleTime: 60_000,
     retry: false,
   });

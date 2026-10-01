@@ -443,3 +443,21 @@ textarea:focus-visible {
   .orders-page .table-card td { padding-left: 12px; padding-right: 12px; }
   .orders-page .action-column { width: 88px !important; min-width: 88px !important; }
 }
+
+
+/* Order detail live-data fit fixes. */
+.order-customer-person > div { overflow: hidden; }
+.order-customer-person .bare {
+  width: 100%;
+  display: block !important;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 1280px) {
+  .order-products-panel table { min-width: 560px; }
+  .order-products-panel th,
+  .order-products-panel td { padding-left: 12px !important; padding-right: 12px !important; }
+  .order-product-cell { min-width: 170px; }
+}
