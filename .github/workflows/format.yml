@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   prettier:
-    if: github.actor != 'github-actions[bot]' && !contains(github.event.head_commit.message, 'style: format codebase')
+    if: "${{ github.actor != 'github-actions[bot]' && !contains(github.event.head_commit.message, 'style: format codebase') }}"
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
