@@ -1,6 +1,8 @@
+import { useQuery } from '@tanstack/react-query';
 import { ChevronDown, CreditCard, History, Package, Truck, UserRound } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '../../data/store';
+import { commerceService } from '../../services/commerce-service';
 import { useToast } from '../../components/ui/feedback';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
 import adminPfp from '../../assets/admin-pfp.png';
@@ -22,11 +24,29 @@ function addressText(address: any) {
 export function OrderDetailPage() {
   const navigate = useNavigate();
   const { orderId } = useParams();
+  const routeId = decodeURIComponent(orderId || '');
   const { data, updateOrderStatus, isSaving } = useStore();
   const toast = useToast();
-  const order = data.orders.find((item: any) => item.id === orderId || item.apiId === orderId);
+  const listOrder = data.orders.find((item: any) => item.id === routeId || item.apiId === routeId);
+  const apiId = listOrder?.apiId || routeId;
 
-  if (!order) return <main className="figma-page"><button className="back" onClick={() => navigate('/orders')}>← Orders</button><section className="card empty"><h1>Order not found</h1><p>This order may have been removed or the link is no longer valid.</p></section></main>;
+  const orderQuery = useQuery({
+    queryKey: ['order', apiId],
+    queryFn: () => commerceService.getOrderDetail(apiId),
+    enabled: Boolean(apiId),
+    staleTime: 30_000,
+    retry: 1,
+  });
+
+  const order: any = orderQuery.data || listOrder;
+
+  if (!order && orderQuery.isLoading) {
+    return <main className="figma-page"><section className="card empty"><h1>Loading order…</h1><p>Fetching the latest order details.</p></section></main>;
+  }
+
+  if (!order) {
+    return <main className="figma-page"><button className="back" onClick={() => navigate('/orders')}>← Orders</button><section className="card empty"><h1>Order not found</h1><p>This order may have been removed or the link is no longer valid.</p></section></main>;
+  }
 
   const customer = data.customers.find((item: any) => item.id === order.customerId || item.apiId === order.customerId || item.email === order.customerEmail);
   const placedDate = formatDate(order.date);
